@@ -71,17 +71,17 @@ elif [ "$@" != "--run" ]; then
 fi
 clear
 
-if [ -f "/tmp/updatingYDE.tmp" ]; then
-loading &
-sudo rm /usr/bin/runui
-sudo cp ./de.sh $int
-sudo chmod +x $int
-sleep 2
-kill "$!"
-clear
-else
-clear
-fi
+#if [ -f "/tmp/updatingYDE.tmp" ]; then
+#loading &
+#sudo rm /usr/bin/runui
+#sudo cp ./de.sh $int
+#sudo chmod +x $int
+#sleep 2
+#kill "$!"
+#clear
+#else
+#clear
+#fi
 
 
 if [ -f "$int" ]; then
