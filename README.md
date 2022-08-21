@@ -4,6 +4,9 @@ Your Desktop Environment for bash shells.
 ## FAQ
 - Q - What are the requirements?
 - A - Bash, 104x27 resolution
+-
+- Q - I dont want install it. How to run without installion?
+- A - Run with -p parameter (bash de.sh -p).
 - 
 - Q - Different languages or English only?
 - A - I think yes, but in future.
