@@ -71,17 +71,16 @@ elif [ "$@" != "--run" ]; then
 fi
 clear
 
-/tmp/updatingYDE.tmp
-
 if [ -f "/tmp/updatingYDE.tmp" ]; then
-clear
-else
 loading &
 sudo rm /usr/bin/runui
 sudo cp ./de.sh $int
 sudo chmod +x $int
 sleep 2
 kill "$!"
+clear
+else
+clear
 fi
 
 
