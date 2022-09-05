@@ -1,29 +1,10 @@
 # YDE
-Your Desktop Environment for bash shells.
+![Снимок экрана от 2022-09-05 16-54-26](https://user-images.githubusercontent.com/71694426/188465576-6d0e8718-51cf-4b1a-a158-c6eb4cc8f359.png)
+<p align="center">
+Your Desktop Environment. This is a DE for TTY sessions written for bash shells.
+</p>
 
-## FAQ
-- Q - What are the requirements?
-- A - Bash, 104x27 resolution
--
-- Q - I dont want install it. How to run without installion?
-- A - Run with -p parameter (```bash de.sh -p```).
--
-- Q - can i install multiple versions at the same time?
-- A - Yes. Download 1.0+ version and run it with ```--target "your destination"```. EX. ```de.sh --target /bin/yde```
-- 
-- Q - Different languages or English only?
-- A - I think yes, but in future.
-- 
-- Q - Nokia N900?)
-- A - Yes))
-- 
-- Q - Works in TTY?
-- A - Of course, the entire shell is written 100% TTY compatible.
-- 
-- Q - Then 1.0 release?
-- A - IDK. When i write a lot of content i think.
-# YDE Mobile
-# **THIS IS ONLY ROADMAP!!! ALL FEATURES NOT DONE!!!**
-- Optymized for Alpine linux and PostmarketOS!
-- Optymized for OnePlus 6
-- Tested on OnePlus 6 and SM-T555
+## [<p align="center">YDE Wikipedia</p>](https://github.com/Russanandres/YDE/wiki)
+### [<p align="center">How To install</p>](https://github.com/Russanandres/YDE/wiki/How-to-install)
+### [<p align="center">FAQ</p>](https://github.com/Russanandres/YDE/wiki/Questions-And-Answers-(FAQ))
+### [<p align="center">Roadmap</p>](https://github.com/Russanandres/YDE/wiki/RoadMap)
