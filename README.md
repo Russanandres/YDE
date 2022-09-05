@@ -7,4 +7,5 @@ Your Desktop Environment. This is a DE for TTY sessions written for bash shells.
 ## [<p align="center">YDE Wikipedia</p>](https://github.com/Russanandres/YDE/wiki)
 ### [<p align="center">How To install</p>](https://github.com/Russanandres/YDE/wiki/How-to-install)
 ### [<p align="center">FAQ</p>](https://github.com/Russanandres/YDE/wiki/Questions-And-Answers-(FAQ))
+### [<p align="center">YDE Mobile</p>](https://github.com/Russanandres/YDE/wiki/Your-Desktop-Environment-Mobile)
 ### [<p align="center">Roadmap</p>](https://github.com/Russanandres/YDE/wiki/RoadMap)
