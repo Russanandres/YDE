@@ -1,5 +1,5 @@
 # YDE
-![Снимок экрана от 2022-09-05 16-54-26](https://user-images.githubusercontent.com/71694426/188465576-6d0e8718-51cf-4b1a-a158-c6eb4cc8f359.png)
+![Снимок экрана от 2022-11-26 19-51-15](https://user-images.githubusercontent.com/71694426/204099960-36536af7-6010-4bf1-93e2-3343c06c5c04.png)
 <p align="center">
 Your Desktop Environment. This is a DE for TTY sessions written for bash shells.
 </p>
