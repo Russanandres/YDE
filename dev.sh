@@ -2,7 +2,7 @@
 VER="1.0"
 startuptime=$(date)
 userdata="~/.config/YDE"
-int=/usr/bin/runui
+int="/usr/bin/runui"
 source ~/.config/YDE/settings.conf
 
 function pause(){ read -p "Press ENTER to continue...."
@@ -10,7 +10,7 @@ function pause(){ read -p "Press ENTER to continue...."
 function exitscr(){
  kill "$!"
  clear
- echo Your Desktop Environment $VER - 2022-2022. Russanandres
+ echo "Your Developer Desktop Environment $VER - 2022-2023. Russanandres"
  date
  exit
 }
@@ -27,29 +27,29 @@ trap "exitscr" SIGINT
 if [ -f "$int" ]; then
  inst="true "
 else
- inst=false
+ inst="false"
 fi
 
 if [ "$1" == "-v" ]; then echo $VER; exit
 elif [ "$1" == "--version" ]; then
- echo Your Desktop Environment $VER by Russanandres.
- echo Thanks for using!
+ echo "Your Developer Desktop Environment $VER by Russanandres."
+ echo "Thanks for using!"
  exit
 elif [ "$1" == "--help" ] || [ "$1" == "-h" ]; then
- echo Your Desktop Environment
- echo Shell TTY DE
+ echo "Your Developer Desktop Environment"
+ echo "Shell TTY DE"
  echo
- echo Avialible commands:
- echo To try YDE without installion run with -p or --portable
- echo To check version run with -v or --version
- echo To backup your YDE folder run with --backup
- echo To check YDE files and repair it run with --check
- echo To force quit run with -fq or --force-quit
- echo To erase all settings run with --erase-all-content
- echo To install in other directory run with --target /path/exitfile
-#  echo To install in other userdata run with --userdata /path
- echo To run compatibility mode run with -com or --compatibility-mode
- echo To see all arguments run with -p or --help
+ echo "Avialible commands:"
+ echo "To try YDE without installion run with -p or --portable"
+ echo "To check version run with -v or --version"
+ echo "To backup your YDE folder run with --backup"
+ echo "To check YDE files and repair it run with --check"
+ echo "To force quit run with -fq or --force-quit"
+ echo "To erase all settings run with --erase-all-content"
+ echo "To install in other directory run with --target /path/exitfile"
+#  echo "To install in other userdata run with --userdata /path"
+ echo "To run compatibility mode run with -com or --compatibility-mode"
+ echo "To see all arguments run with -p or --help"
  exit
 elif [ "$1" == "--backup" ]; then
  cp -r ~/.config/YDE ~/.config/YDE/old/$(date +%d-%m-%y)
@@ -64,7 +64,7 @@ mkdir ~/.config/YDE/old
 mkdir ~/.config/YDE/apps
 touch ~/.config/YDE/settings.conf
 sudo touch /usr/share/YDE/settings.conf
-echo All files has been created or checked
+echo "All files has been created or checked"
 echo
 echo -e "Press any button.\c"
 read -sn1 ch
@@ -82,10 +82,10 @@ elif [ "$1" == "--erase-all-content" ]; then
  if [ "$?" == "1" ]; then check; fi
 elif [ "$1" == "--target" ]; then
  if [ -z "$2" ]; then
- echo Please type path and exit file after --target
- echo like --target /usr/bin/yde
+ echo "Please type path and exit file after --target"
+ echo "like --target /usr/bin/yde"
  echo
- echo Your Desktop Environment $VER - 2021-2022. Russanandres
+ echo "Your Developer Desktop Environment $VER - 2022-2023. Russanandres"
  date
  exit
  else int=$2
@@ -104,10 +104,10 @@ elif [ "$3" == "--userdata" ]; then
  userdatanew=$2
  echo userdata=$userdatanew >> $userdata/settings.conf
  fi
-elif [ "$1" == "-p" ] || [ "$1" == "--portable" ]; then portable=true
+elif [ "$1" == "-p" ] || [ "$1" == "--portable" ]; then portable="true"
 elif [ "$@" != "--run" ]; then
- echo This run argument is not exist! Use --help to see all avialible arguments.
- echo YDE $VER
+ echo "This run argument is not exist! Use --help to see all avialible arguments."
+ echo "YDE $VER"
  exit
 fi
 clear
@@ -116,13 +116,13 @@ if [ "$startupcheckupdate" == "enable" ]; then
 loading &
  gitver=$(curl -f -# https://raw.githubusercontent.com/Russanandres/YDE/main/lastversion)
  if [ "$VER" == "$gitver" ]; then
-  echo all ok
+  echo "All ok!"
   sleep 0.5
  elif [ "$gitver" -gt "$VER" ]; then
-  echo You have old version of script! Please update it!
+  echo "You have old version of script! Please update it!"
   pause
  elif [ "$gitver" -lt "$VER" ]; then
-  echo You have newer version, than repository! Please create issue in github!
+  echo "You have newer version, than repository! Please create issue in github!"
   pause
  fi
 kill "$!"
@@ -131,7 +131,7 @@ fi
 if [ -f "/tmp/updatingYDE.tmp" ]; then
 loading &
 sudo rm $int
-sudo cp ./de.sh $int
+sudo cp ./$0 $int
 sudo chmod +x $int
 sleep 2
 kill "$!"
@@ -155,12 +155,12 @@ touch ~/.config/YDE/apps/list
 echo THEME=classic >> ~/.config/YDE/settings.conf
 echo int=$int >> ~/.config/YDE/settings.conf;;
 esac
-elif [ "$1" == "-p" ] || [ "$1" == "--portable" ]; then echo a
+elif [ "$1" == "-p" ] || [ "$1" == "--portable" ]; then true
 fi
 
 if [ -f "$int" ] || [ "$1" == "-p" ] || [ "$1" == "--portable" ]; then
 clear
-echo Loading Your Desktop Environment...
+echo "Loading Your Developer Desktop Environment..."
 echo
 loading &
 screen=startingup
@@ -185,10 +185,10 @@ echo "│  ┌───┐            ┌───┐                           
 echo "│  │ E │ Exit YDE   │ C │ Configurator                                                                 │"
 echo "│  └───┘            └───┘                                                                              │"
 echo "│  ┌───┐                                                                                               │"
-echo "│  │ P │ Poweroff                                                                                      │"
+echo "│  │ P │ Powermenu                                                                                     │"
 echo "│  └───┘                                                                                               │"
 echo "│  ┌───┐                                                                                               │"
-echo "│  │ D │ Desktop                                                                                       │"
+echo "│  │ L │ Lock PC                                                                                       │"
 echo "│  └───┘                                                                                               │"
 echo "│                                                                                                      │"
 echo "│                                                                                                      │"
@@ -203,20 +203,21 @@ echo "│ [YDE] $VER                                                            
 echo "└──────────────────────────────────────────────────────────────────────────────────────────────────────┘"
 read -sn1 ch
 case "$ch" in
-"S"|"s" ) desktop;;
-"Y"|"y" ) about;;
 "A"|"a" ) about;;
 "E"|"e" ) exitscr;;
-"P"|"p" ) clear; echo "Shut Down? [Y/n]"; read -sn1 ch; case "$ch" in "Y"|"y") sudo poweroff; esac;;
-"D"|"d" ) desktop;;
-"W"|"w" ) apps;;
+"P"|"p" ) exitt;;
+"L"|"l" ) lock;;
 
 "M"|"m" ) settings;;
 "C"|"c" ) configurator;;
-"Q"|"q" ) yourapps;;
 
 "X"|"x" ) clear; clock;;
-"="|"+" ) scrsvr;;
+
+"W"|"w" ) apps;;
+"Q"|"q" ) yourapps;;
+
+"S"|"s" ) desktop;;
+"D"|"d" ) desktop;;
 esac
 }
 
@@ -262,23 +263,14 @@ case "$ch" in
 esac
 }
 
-function scrsvr(){
-# desktop &
-while sleep 1; do
-desktop &
-done
-}
-
-
-
-
 function desktop(){
 screen=desktop
+trap "exitscr" SIGINT
 clear
 echo "┌──────────────────────────────────────────── Your Desktop ────────────────────────────────────────────┐"
 echo "│                                                                             Now is:                  │"
 echo "│ [1] - Back to Command line                                              $(date +%D) $(date +%H:%M:%S)            │"
-echo "│                                                                                $(date +%a)                    │"
+echo "│ [L] - Lockscreen                                                               $(date +%a)                    │"
 echo "│                                                                                                      │"
 echo "│                                                                                                      │"
 echo "│                                                                                                      │"
@@ -300,20 +292,12 @@ echo "│                                                                       
 echo "├──────────────────────────────────────────────────────────────────────────────────────────────────────┤"
 echo "│ [S] Homescreen                                                                 [$(date +%D)] [$(date +%H:%M:%S)] │"
 echo "└──────────────────────────────────────────────────────────────────────────────────────────────────────┘"
-unset ch
-if [ "$1" == "debug" ]; then initmouse; # echo -ne "\e[?9l"
-if [ "$(printMouseInfo)" == "button=0 column=4 row=24" ]; then start
-elif [ "$(printMouseInfo)" == "button=0 column=4 row=3" ]; then exitscr
-elif [ "$(printMouseInfo)" == "button=0 column=98 row=24" ]; then clock
-elif [ "$(printMouseInfo)" == "button=0 column=39 row=8" ]; then debug
-elif [ "$(printMouseInfo)" == "button=0 column=70 row=22" ]; then mouse=0; desktop
-fi; fi
 read -sn1 ch
 case "$ch" in
 "S"|"s" ) start;;
 "1" ) exitscr;;
+"L"|"l" ) lock;;
 "=" ) debug;;
-"m" ) mouse=1; desktop
 esac
 }
 
@@ -359,7 +343,7 @@ function about(){
 screen=about
 clear
 echo "┌──────────────────────────────────────────── About Desktop ───────────────────────────────────────────┐"
-echo "│ Your Desktop Environment                                                                             │"
+echo "│ Your Developer Desktop Environment                                                                   │"
 echo "│ Version $VER                                                                                          │"
 echo "│                                                                                                      │"
 echo "│                                                                                                      │"
@@ -399,7 +383,7 @@ echo "│ [T] Theme - $THEME                                                    
 echo "│ [-] Installed - $inst                                                                                │"
 echo "│                                                                                                      │"
 echo "│ [U] Check Update                                                                                     │"
-echo "│ [Q] Reinstall from de.sh                                                                             │"
+echo "│ [Q] Reinstall from current file                                                                      │"
 echo "│ [R] Remove YDE                                                                                       │"
 echo "│                                                                                                      │"
 echo "│ [C] Compatibility mode                                                                               │"
@@ -497,11 +481,342 @@ echo "├───────────────────────�
 echo "│ Press CTRL + C to exit to desktop                                                                    │"
 echo "└──────────────────────────────────────────────────────────────────────────────────────────────────────┘"
 trap "desktop" EXIT
-if [ $e == '0' ]; then echo time is out!; aplay /dev/random; fi
+if [ $e == '0' ]; then echo "time is out!"; aplay /dev/random; fi
 done
 }
 
+# Animation is under construction. It is on early ready etape and not good in code moment. Please standby and help @russanandres if you know how to do this.
+function lock(){
+while sleep 1; do
+clear
+echo "┌───────────────────────────────────────────── Lockscreen ─────────────────────────────────────────────┐"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                     Now is:                                                                          │"
+echo "│                 $(date +%D) $(date +%H:%M:%S)                                                                    │"
+echo "│                        $(date +%a)                                                                            │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                   ___  _ ____  _____                 │"
+echo "│                                                                   \  \///  _ \/  __/                 │"
+echo "│                                                                    \  / | | \||  \                   │"
+echo "│                                                                    / /  | |_/||  /_                  │"
+echo "│                                                                   /_/   \____/\____\                 │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "├──────────────────────────────────────────────────────────────────────────────────────────────────────┤"
+echo "│ Press CTRL + C to unlock                                                                             │"
+echo "└──────────────────────────────────────────────────────────────────────────────────────────────────────┘"
+trap "break" SIGINT
+done
+
+clear
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                     Now is:                                                                          │"
+echo "│                 $(date +%D) $(date +%H:%M:%S)                                                                    │"
+echo "│                        $(date +%a)                                                                            │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                   ___  _ ____  _____                 │"
+echo "│                                                                   \  \///  _ \/  __/                 │"
+echo "│                                                                    \  / | | \||  \                   │"
+echo "│                                                                    / /  | |_/||  /_                  │"
+echo "│                                                                   /_/   \____/\____\                 │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "├──────────────────────────────────────────────────────────────────────────────────────────────────────┤"
+echo "│ Press CTRL + C to unlock                                                                             │"
+echo "└──────────────────────────────────────────────────────────────────────────────────────────────────────┘"
+echo "┌───────────────────────────────────────────── Lockscreen ─────────────────────────────────────────────┐"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+sleep 0.2
+clear
+echo "│                 $(date +%D) $(date +%H:%M:%S)                                                                    │"
+echo "│                        $(date +%a)                                                                            │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                   ___  _ ____  _____                 │"
+echo "│                                                                   \  \///  _ \/  __/                 │"
+echo "│                                                                    \  / | | \||  \                   │"
+echo "│                                                                    / /  | |_/||  /_                  │"
+echo "│                                                                   /_/   \____/\____\                 │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "├──────────────────────────────────────────────────────────────────────────────────────────────────────┤"
+echo "│ Press CTRL + C to unlock                                                                             │"
+echo "└──────────────────────────────────────────────────────────────────────────────────────────────────────┘"
+echo "┌───────────────────────────────────────────── Lockscreen ─────────────────────────────────────────────┐"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                Please enter passcode                                                 │"
+echo "│                                                                                                      │"
+sleep 0.2
+clear
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                   ___  _ ____  _____                 │"
+echo "│                                                                   \  \///  _ \/  __/                 │"
+echo "│                                                                    \  / | | \||  \                   │"
+echo "│                                                                    / /  | |_/||  /_                  │"
+echo "│                                                                   /_/   \____/\____\                 │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "├──────────────────────────────────────────────────────────────────────────────────────────────────────┤"
+echo "│ Press CTRL + C to unlock                                                                             │"
+echo "└──────────────────────────────────────────────────────────────────────────────────────────────────────┘"
+echo "┌───────────────────────────────────────────── Lockscreen ─────────────────────────────────────────────┐"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                Please enter passcode                                                 │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+sleep 0.2
+clear
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                   ___  _ ____  _____                 │"
+echo "│                                                                   \  \///  _ \/  __/                 │"
+echo "│                                                                    \  / | | \||  \                   │"
+echo "│                                                                    / /  | |_/||  /_                  │"
+echo "│                                                                   /_/   \____/\____\                 │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "├──────────────────────────────────────────────────────────────────────────────────────────────────────┤"
+echo "│ Press CTRL + C to unlock                                                                             │"
+echo "└──────────────────────────────────────────────────────────────────────────────────────────────────────┘"
+echo "┌───────────────────────────────────────────── Lockscreen ─────────────────────────────────────────────┐"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                Please enter passcode                                                 │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+sleep 0.2
+clear
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                   ___  _ ____  _____                 │"
+echo "│                                                                   \  \///  _ \/  __/                 │"
+echo "│                                                                    \  / | | \||  \                   │"
+echo "│                                                                    / /  | |_/||  /_                  │"
+echo "│                                                                   /_/   \____/\____\                 │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "├──────────────────────────────────────────────────────────────────────────────────────────────────────┤"
+echo "│ Press CTRL + C to unlock                                                                             │"
+echo "└──────────────────────────────────────────────────────────────────────────────────────────────────────┘"
+echo "┌───────────────────────────────────────────── Lockscreen ─────────────────────────────────────────────┐"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                Please enter passcode                                                 │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+sleep 0.2
+clear
+echo "│                                                                    / /  | |_/||  /_                  │"
+echo "│                                                                   /_/   \____/\____\                 │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "├──────────────────────────────────────────────────────────────────────────────────────────────────────┤"
+echo "│ Press CTRL + C to unlock                                                                             │"
+echo "└──────────────────────────────────────────────────────────────────────────────────────────────────────┘"
+echo "┌───────────────────────────────────────────── Lockscreen ─────────────────────────────────────────────┐"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                Please enter passcode                                                 │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                   ___  _ ____  _____                 │"
+echo "│                                                                   \  \///  _ \/  __/                 │"
+echo "│                                                                    \  / | | \||  \                   │"
+sleep 0.2
+clear
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "├──────────────────────────────────────────────────────────────────────────────────────────────────────┤"
+echo "│ Press CTRL + C to unlock                                                                             │"
+echo "└──────────────────────────────────────────────────────────────────────────────────────────────────────┘"
+echo "┌───────────────────────────────────────────── Lockscreen ─────────────────────────────────────────────┐"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                Please enter passcode                                                 │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                   ___  _ ____  _____                 │"
+echo "│                                                                   \  \///  _ \/  __/                 │"
+echo "│                                                                    \  / | | \||  \                   │"
+echo "│                                                                    / /  | |_/||  /_                  │"
+echo "│                                                                   /_/   \____/\____\                 │"
+echo "│                                                                                                      │"
+sleep 0.2
+clear
+echo "┌───────────────────────────────────────────── Lockscreen ─────────────────────────────────────────────┐"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                Please enter passcode                                                 │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                   ___  _ ____  _____                 │"
+echo "│                                                                   \  \///  _ \/  __/                 │"
+echo "│                                                                    \  / | | \||  \                   │"
+echo "│                                                                    / /  | |_/||  /_                  │"
+echo "│                                                                   /_/   \____/\____\                 │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "├──────────────────────────────────────────────────────────────────────────────────────────────────────┤"
+sleep 0.2
+
+clear
+echo "┌───────────────────────────────────────────── Lockscreen ─────────────────────────────────────────────┐"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                Please enter passcode                                                 │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                   ___  _ ____  _____                 │"
+echo "│                                                                   \  \///  _ \/  __/                 │"
+echo "│                                                                    \  / | | \||  \                   │"
+echo "│                                                                    / /  | |_/||  /_                  │"
+echo "│                                                                   /_/   \____/\____\                 │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "├──────────────────────────────────────────────────────────────────────────────────────────────────────┤"
+echo "│ Unlock PC with your password                                                                         │"
+echo "└──────────────────────────────────────────────────────────────────────────────────────────────────────┘"
+read pass
+if [ $pass1 -eq $pass ]; then desktop; else echo "Password do not match! Please try again!"; sleep 3; lock; fi
+pause
+}
+
+
+
+
+
 ### Under construction things
+
+exitt=0
+function exitt()
+{
+    let exitt++
+    echo
+    if [[ $exitt == 1 ]]; then
+clear
+echo "┌────────────────────────────────────────────── Shutdown ──────────────────────────────────────────────┐"
+echo "│                                                                                                      │"
+echo "│  ┌───┐                                                                                               │"
+echo "│  │ E │ Exit YDE                                                                                      │"
+echo "│  └───┘                                                                                               │"
+echo "│  ┌───┐                                                                                               │"
+echo "│  │ P │ Poweroff                                                                                      │"
+echo "│  └───┘                                                                                               │"
+echo "│  ┌───┐                                                                                               │"
+echo "│  │ D │ Desktop                                                                                       │"
+echo "│  └───┘                                                                                               │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "│                                                                                                      │"
+echo "├──────────────────────────────────────────────────────────────────────────────────────────────────────┤"
+echo "│ [YDE]                                                                             [$(date +%D)] [$(date +%H:%M)] │"
+echo "└──────────────────────────────────────────────────────────────────────────────────────────────────────┘"
+read -sn1 ch
+case "$ch" in
+"P"|"p" ) clear; echo "Shut Down? [Y/n]"; read -sn1 ch; case "$ch" in "Y"|"y") sudo poweroff; esac;;
+"E"|"e" ) exitscr;;
+esac
+    fi
+}
+
 # Reset
 No_color='\033[0m'       # Text Reset
 # Regular Colors
@@ -591,7 +906,7 @@ echo "bash ~/.config/YDE/restartyde.sh &" | at now
 }
 function filepicker(){
 ls -la
-echo type your file
+echo "Please type your file"
 read file
 mpv $file --no-audio-display
 pause
@@ -600,120 +915,26 @@ pause
 function debug(){
 screen=desktop
 clear
-echo This is under construction things. Use with caution!
+echo "This is under construction things. Use with caution!"
 echo
-echo = - desktop
+echo "= - desktop"
 echo
-echo m - filepicker
-echo c - calculator
-echo t - themes
-echo s - scrsvr
-echo
-echo 1 - sandbox
+echo "m - filepicker"
+echo "c - calculator"
+echo "t - themes"
 read ch
 case "$ch" in
 "=" ) screen=desktop; desktop;;
 "m" ) filepicker;;
 "c" ) calculator;;
-"s" ) scrsvr;;
-"1" ) sandboxplugin;;
 esac
-debug
-}
-
-
-# /dev/ass/coolthings
-
-function calculator(){
-screen=calc
-echo "enter first value:"
-read x
-echo "enter second value"
-read y
-echo "enter action symbol"
-read act
-case $act in
-"+") echo " $x + $y ="  $(expr $y + $x);;
-"-") echo "$x - $y ="   $(expr $x - $y);;
-"/") if [ $y -eq 0 ]; then
-       echo "error: delimiter by zero";
-     else
-       echo " $x / $y =" $(expr  $x / $y);
-     fi;;
-"*") echo " $x * $y =" $(expr  $x \* $y);;
-*) echo "command is unknown!"
-esac
-clear
-echo "┌───────────────────────────────────────────── Calculator ─────────────────────────────────────────────┐"
-echo "│                                                                                                      │"
-echo "│                                                                                                      │"
-echo "│                        ┌───────────────────────────────────────┐                                     │"
-echo "│                        │                                       │                                     │"
-echo "│                        │                                       │                                     │"
-echo "│                        │                                       │                                     │"
-echo "│                  \`8.\  │                                       │ 88888                               │"
-echo "│                   \`8.  │                                       │                                     │"
-echo "│                    \`8  │                                       │                                     │"
-echo "│                     \`  │                                       │                                     │"
-echo "│                      \ │                                       │ 888888                              │"
-echo "│                        │                                       │                                     │"
-echo "│                        │                                       │                                     │"
-echo "│                        │                                       │                                     │"
-echo "│                        │                                       │                                     │"
-echo "│                        │                                       │ 88888                               │"
-echo "│                        │                                       │                                     │"
-echo "│                        │                                       │                                     │"
-echo "│                        └───────────────────────────────────────┘                                     │"
-echo "│                                                                                                      │"
-echo "│                                                                                                      │"
-echo "├──────────────────────────────────────────────────────────────────────────────────────────────────────┤"
-echo "│ [S] Homescreen                                                                    [$(date +%D)] [$(date +%H:%M)] │"
-echo "└──────────────────────────────────────────────────────────────────────────────────────────────────────┘"
-read -sn1 uc
-}
-declare -i mouseX
-declare -i mouseY
-declare -i mouseButton
-declare -r ESC_CODE=$'\e'
-declare -r EXIT_CODE='x'
-printMouseInfo() {
-	echo button=$mouseButton column=$mouseX row=$mouseY
-}
-readMouse() {
-	local mouseButtonData
-	local mouseXData
-	local mouseYData
-	read -r -s -n 1 -t 1 mouseButtonData
-	read -r -s -n 1 -t 1 mouseXData
-	read -r -s -n 1 -t 1 mouseYData
-	local -i mouseButtonCode
-	local -i mouseXCode
-	local -i mouseYCode
-	LC_ALL=C printf -v mouseButtonCode '%d' "'$mouseButtonData"
-	LC_ALL=C printf -v mouseXCode '%d' "'$mouseXData"
-	LC_ALL=C printf -v mouseYCode '%d' "'$mouseYData"
-    	((mouseButton = mouseButtonCode))
-	((mouseX = mouseXCode - 32))
-	((mouseY = mouseYCode - 32))
-}
-initmouse(){
-declare key
-echo -ne "\e[?9h"
-	key=""
-	read -r -s -t 1 -n 1 key
-			if [[ "$key" == '[' ]]; then
-				read -r -s -t 1 -n 1 key
-				if [[ "$key" == "M" ]]; then
-			 		readMouse
-				fi
-			fi
 }
 
 function configurator(){
 screen=configurator
 printf '\033[8;27;107t'
 clear
-parts=5
+parts=8
 echo
 echo "   ┌────────────────────────────────────────────────────────────────────────────────────────────────────┐"
 echo "   │YDE Configurator                                                                      [part 1 of $parts] │"
@@ -798,6 +1019,20 @@ echo "         - Type [Y] to Enable."
 echo "         - Type [N] to Diasble."
 echo
 read -sn1 six
+clear
+echo
+echo "   ┌────────────────────────────────────────────────────────────────────────────────────────────────────┐"
+echo "   │YDE Configurator                                                                      [part 7 of $parts] │"
+echo "   └────────────────────────────────────────────────────────────────────────────────────────────────────┘"
+echo
+echo
+echo "        Setup lockscreen password"
+echo "        PASSWORD WILL NOT BE ENCRYPTED!!!"
+echo
+echo "         - Type [N] to Diasble."
+echo "         - Or type pasword."
+echo
+read seven
 # clear
 # echo
 # echo "   ┌──────────────────────────────────────────────────────────────────────────────────────────────────────┐"
@@ -856,6 +1091,11 @@ esac
 case "$six" in
 "Y"|"y" ) echo fastboot=true >> ~/.config/YDE/settings.conf;;
 "N"|"n" ) echo fastboot=false >> ~/.config/YDE/settings.conf;;
+esac
+
+case "$seven" in
+"N"|"n" ) echo "batus systems";;
+* ) echo pass1=$seven >> ~/.config/YDE/settings.conf
 esac
 
 printf '\033[8;27;104t'
@@ -930,7 +1170,7 @@ echo "      We are reinstalling your YDE."
 echo "      Please wait."
 loading &
 sudo rm $int
-sudo cp ./de.sh $int
+sudo cp ./$0 $int
 sudo chmod +x $int
 sleep 2
 kill "$!"
@@ -982,10 +1222,8 @@ echo
 loading &
 sudo rm $int
 if [ "$deluserdata" == "Y" ]; then
-cp ~/.config/YDE /tmp/YDE/$USER/
-cp /usr/share/YDE /tmp/YDE/system/
-sudo rm -rf ~/.config/YDE
-sudo rm -rf /usr/share/YDE
+mv ~/.config/YDE /tmp/YDE/$USER/
+mv /usr/share/YDE /tmp/YDE/system/
 rm -rf ~/.config/YDE
 sleep 2
 fi
@@ -1034,7 +1272,7 @@ echo "   │ YDE Installion                                                     
 echo "   └────────────────────────────────────────────────────────────────────────────────────────────────────┘"
 echo
 echo
-echo "      Welcome to the first boot of YDE!"
+echo "      Welcome to the first boot of Your Developer Desktop Environment!"
 echo
 echo "      This pseudo-graphical shell will try to make you comfortable in the terminal."
 echo "      The environment will now be installed on your computer."
@@ -1053,7 +1291,7 @@ echo
 echo "    We installing the required parts..."
 echo
 loading &
-sudo cp ./de.sh $int
+sudo cp ./$0 $int
 sudo chmod +x $int
 sudo mkdir /usr/share/YDE
 mkdir ~/.config/YDE/
@@ -1083,8 +1321,8 @@ sleep 3
 clear
 echo "run runui to run shell."
 echo
-echo "Your Desktop Environment $VER - 2021-2022. Russanandres"
+echo "Your Developer Desktop Environment $VER - 2021-2022. Russanandres"
 date
 exit
 fi
-echo hi
+echo "This script like Wall in 1979!"
