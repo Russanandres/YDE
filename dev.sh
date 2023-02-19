@@ -2,7 +2,7 @@
 VER="1.0"
 startuptime=$(date)
 userdata="~/.config/YDE"
-int="/usr/bin/runui"
+int="/usr/bin/runuidev"
 source ~/.config/YDE/settings.conf
 
 function pause(){ read -p "Press ENTER to continue...."
