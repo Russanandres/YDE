@@ -5,11 +5,10 @@ int=/usr/bin/safeui
 # source ~/.config/YDE/settings.conf
 source ~/.config/YDE/fallback.conf
 # source ~/.config/YDE/yde.log
-function pause(){ read -p "Press ENTER to continue...."
-}
+function pause(){ read -p "Press ENTER to continue...." ; }
 function exitscr(){
  clear
- echo Your Desktop Environment $VER - 2021-2022. Russanandres
+ echo "Your Desktop Environment $VER - 2022-$(date +%Y). Russanandres"
  date
  exit
 }
@@ -26,27 +25,27 @@ trap "exitscr" SIGINT
 if [ -f "$int" ]; then inst="true "; else inst=false; fi
 if [ "$1" == "-v" ]; then echo $VER; exit
 elif [ "$1" == "--help" ] || [ "$1" == "-h" ]; then
- echo Your Desktop Environment Fallback Mode
- echo Shell TTY DE
- echo If you have good pc, please download normal verison.
+ echo "Your Desktop Environment Fallback Mode"
+ echo "Shell TTY DE"
+ echo "If you have good pc, please download normal verison."
  echo
- echo Avialible commands:
- echo To try YDE without installion run with -p or --portable
- echo To check version run with -v or --version
- echo To force quit run with -fq or --force-quit
- echo To see all arguments run with --help
+ echo "Avialible commands:"
+ echo "To try YDE without installion run with -p or --portable"
+ echo "To check version run with -v or --version"
+ echo "To force quit run with -fq or --force-quit"
+ echo "To see all arguments run with --help"
  exit
 elif [ "$1" == "--force-quit" ] || [ "$1" == "-fq" ]; then exitscr
 elif [ "$1" == "-p" ] || [ "$1" == "--portable" ]; then portable=true
 elif [ "$@" != "--run" ]; then
- echo This run argument is not exist! Use --help to see all avialible arguments.
- echo YDE $VER
+ echo "This run argument is not exist! Use --help to see all avialible arguments."
+ echo "YDE $VER"
  exit
 fi
 clear
 if [ -f "$int" ] || [ "$1" == "-p" ] || [ "$1" == "--portable" ]; then
 clear
-echo Loading Your Desktop Environment...
+echo "Loading Your Desktop Environment..."
 echo
 loading &
 source /usr/share/YDE/settings.conf
@@ -118,7 +117,7 @@ function about(){
 screen=about
 clear
 echo "┌─────────────────────── About Desktop ──────────────────────┐"
-echo "│ Your Desktop Environment                                   │"
+echo "│ Your Fallback Desktop Environment                          │"
 echo "│ Version $VER                                                │"
 echo "│                                                            │"
 echo "│                                                            │"
@@ -207,7 +206,7 @@ echo "      We are reinstalling your YDE fallback."
 echo "      Please wait."
 loading &
 sudo rm $int
-sudo cp ./YDE_fallback.sh $int
+sudo cp ./$0 $int
 sudo chmod +x $int
 sleep 2
 kill "$!"
@@ -239,7 +238,7 @@ echo "   │ YDEf deInstallion                            [part 2 of 3] │"
 echo "   └────────────────────────────────────────────────────────────┘"
 echo
 echo
-echo "   We uninstalling YDE fallback. Please wait."
+echo "      We uninstalling YDE fallback. Please wait."
 loading &
 sudo rm $int
 rm -f ~/.config/YDE/fallback.conf
@@ -290,7 +289,7 @@ echo
 echo "    We installing the required parts..."
 echo
 loading &
-sudo cp ./YDE_fallback.sh $int
+sudo cp ./$0 $int
 sudo chmod +x $int
 sudo mkdir /usr/share/YDE
 mkdir ~/.config/YDE/
@@ -301,7 +300,6 @@ mkdir ~/.config/YDE/old
 touch ~/.config/YDE/fallback.conf
 sudo touch /usr/share/YDE/fallback.conf
 touch ~/.config/YDE/apps/list
-echo THEME=classic >> ~/.config/YDE/fallback.conf
 echo int=$int >> ~/.config/YDE/fallback.conf
 sleep 2
 kill "$!"
@@ -319,9 +317,9 @@ echo "      The installer will close in a couple of seconds."
 echo
 sleep 3
  clear
- echo "run safeui to run shell."
+ echo "Run safeui to run shell."
  echo
- echo "Your Desktop Environment Fallback $VER - 2021-2022. Russanandres"
+ echo "Your Fallback Desktop Environment $VER - 2022-$(date +%Y). Russanandres"
  date
  exit
 fi
