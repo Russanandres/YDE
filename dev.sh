@@ -2,7 +2,7 @@
 VER="1.0"
 startuptime=$(date)
 userdata="~/.config/YDE"
-int="/usr/bin/runuidev"
+int="/usr/bin/runui"
 source ~/.config/YDE/settings.conf
 
 function pause(){ read -p "Press ENTER to continue...."
@@ -10,7 +10,7 @@ function pause(){ read -p "Press ENTER to continue...."
 function exitscr(){
  kill "$!"
  clear
- echo "Your Developer Desktop Environment $VER - 2022-2023. Russanandres"
+ echo "Your Developer Desktop Environment $VER - 2022-$(date +%Y). Russanandres"
  date
  exit
 }
@@ -67,9 +67,7 @@ sudo touch /usr/share/YDE/settings.conf
 echo "All files has been created or checked"
 echo
 echo -e "Press any button.\c"
-read -sn1 ch
-}
-check
+read -sn1 ch; }; check
 elif [ "$1" == "--force-quit" ] || [ "$1" == "-fq" ]; then exitscr
 elif [ "$1" == "--compatibility-mode" ] || [ "$1" == "-com" ]; then
  curl -s https://raw.githubusercontent.com/Russanandres/YDE/main/YDE_fallback.sh | bash
@@ -83,9 +81,9 @@ elif [ "$1" == "--erase-all-content" ]; then
 elif [ "$1" == "--target" ]; then
  if [ -z "$2" ]; then
  echo "Please type path and exit file after --target"
- echo "like --target /usr/bin/yde"
+ echo "Like --target /usr/bin/yde"
  echo
- echo "Your Developer Desktop Environment $VER - 2022-2023. Russanandres"
+ echo "Your Developer Desktop Environment $VER - 2022-$(date +%Y). Russanandres"
  date
  exit
  else int=$2
@@ -294,6 +292,7 @@ echo "│ [S] Homescreen                                                        
 echo "└──────────────────────────────────────────────────────────────────────────────────────────────────────┘"
 read -sn1 ch
 case "$ch" in
+"I" ) echo "Hello World!"; sleep 2;;
 "S"|"s" ) start;;
 "1" ) exitscr;;
 "L"|"l" ) lock;;
@@ -343,7 +342,7 @@ function about(){
 screen=about
 clear
 echo "┌──────────────────────────────────────────── About Desktop ───────────────────────────────────────────┐"
-echo "│ Your Developer Desktop Environment                                                                   │"
+echo "│ Your Developer Desktop Environment                                                                             │"
 echo "│ Version $VER                                                                                          │"
 echo "│                                                                                                      │"
 echo "│                                                                                                      │"
@@ -379,7 +378,7 @@ screen=settings
 clear
 echo "┌────────────────────────────────────────── Desktop Settings ──────────────────────────────────────────┐"
 echo "│                                                                                                      │"
-echo "│ [T] Theme - $THEME                                                                                  │"
+echo "│ [E] Echo Hello World!                                                                                │"
 echo "│ [-] Installed - $inst                                                                                │"
 echo "│                                                                                                      │"
 echo "│ [U] Check Update                                                                                     │"
@@ -404,8 +403,7 @@ echo "│ [S] Homescreen                                                        
 echo "└──────────────────────────────────────────────────────────────────────────────────────────────────────┘"
 read -sn1 ch
 case "$ch" in
-# "T" )
-# themes;;
+"E"|"e" ) echo "Hello World!"; sleep 2;;
 "U"|"u" ) update;;
 "R"|"r" ) remove;;
 "Q"|"q" ) reinstall;;
@@ -1026,7 +1024,7 @@ echo "   │YDE Configurator                                                    
 echo "   └────────────────────────────────────────────────────────────────────────────────────────────────────┘"
 echo
 echo
-echo "        Setup lockscreen password"
+echo "        Setup lockscreen password?"
 echo "        PASSWORD WILL NOT BE ENCRYPTED!!!"
 echo
 echo "         - Type [N] to Diasble."
@@ -1040,7 +1038,7 @@ read seven
 # echo "   └──────────────────────────────────────────────────────────────────────────────────────────────────────┘"
 # echo
 # echo
-# echo "        Choose resolution"
+# echo "        Choose resolution:"
 # echo
 # echo "         - Type [S] to Standart resolution."
 # echo "         - Type [U] to Ultra-Wide resolution."
@@ -1094,7 +1092,7 @@ case "$six" in
 esac
 
 case "$seven" in
-"N"|"n" ) echo "batus systems";;
+"N"|"n" ) echo ;;
 * ) echo pass1=$seven >> ~/.config/YDE/settings.conf
 esac
 
@@ -1167,7 +1165,7 @@ echo
 echo "      Hello!"
 echo
 echo "      We are reinstalling your YDE."
-echo "      Please wait."
+echo "      Please wait..."
 loading &
 sudo rm $int
 sudo cp ./$0 $int
@@ -1272,7 +1270,7 @@ echo "   │ YDE Installion                                                     
 echo "   └────────────────────────────────────────────────────────────────────────────────────────────────────┘"
 echo
 echo
-echo "      Welcome to the first boot of Your Developer Desktop Environment!"
+echo "      Welcome to the first boot of YDE!"
 echo
 echo "      This pseudo-graphical shell will try to make you comfortable in the terminal."
 echo "      The environment will now be installed on your computer."
@@ -1301,7 +1299,6 @@ mkdir ~/.config/YDE/old
 mkdir ~/.config/YDE/apps
 touch ~/.config/YDE/settings.conf
 sudo touch /usr/share/YDE/settings.conf
-touch ~/.config/YDE/apps/list
 echo int=$int >> ~/.config/YDE/settings.conf
 sleep 2
 kill "$!"
@@ -1319,9 +1316,9 @@ echo "      The installer will close in a couple of seconds."
 echo
 sleep 3
 clear
-echo "run runui to run shell."
+echo "Run runui to run shell."
 echo
-echo "Your Developer Desktop Environment $VER - 2021-2022. Russanandres"
+echo "Your Developer Desktop Environment $VER - 2022-$(date +%Y). Russanandres"
 date
 exit
 fi
