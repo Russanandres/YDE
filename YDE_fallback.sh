@@ -4,58 +4,43 @@ startuptime=$(date)
 int=/usr/bin/safeui
 # source ~/.config/YDE/settings.conf
 source ~/.config/YDE/fallback.conf
-# source ~/.config/YDE/yde.log
 function pause(){ read -p "Press ENTER to continue...." ; }
 function exitscr(){
  clear
- echo "Your Desktop Environment $VER - 2022-$(date +%Y). Russanandres"
+ echo "Your Desktop Environment $VER - 2022-2023. Russanandres"
  date
  exit
 }
-function loading() {
-    local i sp n
-    sp='/-\|'
-    n=${#sp}
-    printf ' '
-    while sleep 0.1; do
-        printf "%s\b" "${sp:i++%n:1}"
-    done
-}
 trap "exitscr" SIGINT
 if [ -f "$int" ]; then inst="true "; else inst=false; fi
-if [ "$1" == "-v" ]; then echo $VER; exit
-elif [ "$1" == "--help" ] || [ "$1" == "-h" ]; then
- echo "Your Desktop Environment Fallback Mode"
- echo "Shell TTY DE"
- echo "If you have good pc, please download normal verison."
- echo
- echo "Avialible commands:"
- echo "To try YDE without installion run with -p or --portable"
- echo "To check version run with -v or --version"
- echo "To force quit run with -fq or --force-quit"
- echo "To see all arguments run with --help"
- exit
-elif [ "$1" == "--force-quit" ] || [ "$1" == "-fq" ]; then exitscr
-elif [ "$1" == "-p" ] || [ "$1" == "--portable" ]; then portable=true
-elif [ "$@" != "--run" ]; then
- echo "This run argument is not exist! Use --help to see all avialible arguments."
- echo "YDE $VER"
- exit
-fi
+
+
+function helpscr(){
+echo "YDE_Fallback. By Russanandres.
+Usage: YDE_fallback.sh [option]
+Availiable options:
+    -v | --version      >>  Show script version
+    -q | --force-quit   >>  Force quit from script
+    -p | --portable     >>  Run script without install
+    -h | --help         >>  Show help manual"; exit
+}
+
+while [ "$1" != "" ]; do
+    case $1 in
+        -v | --version ) echo "YDE Fallback $VER";;
+        -h | --help ) helpscr;;
+        -q | --force-quit ) exitscr;;
+        -p | --portable ) portable=1;;
+    esac
+    shift
+done
 clear
-if [ -f "$int" ] || [ "$1" == "-p" ] || [ "$1" == "--portable" ]; then
+if [ -f "$int" ] || [ "$portable" == "1" ]; then
 clear
 echo "Loading Your Desktop Environment..."
-echo
-loading &
 source /usr/share/YDE/settings.conf
 printf '\033[8;17;63t'
 screen=startingup
-if [ "$fastboot" == "true" ] || [ "$1" == "-f" ] || [ "$2" == "-f" ]; then
-break
-else
-sleep 1
-fi
 kill "$!"
 while true; do
 function start(){
@@ -83,8 +68,7 @@ case "$ch" in
 "P"|"p" ) sudo poweroff;;
 "D"|"d" ) desktop;;
 "S"|"s" ) desktop;;
-esac
-}
+esac;}
 function desktop(){
 screen=desktop
 clear
@@ -111,8 +95,7 @@ case "$ch" in
 "1" ) about;;
 "2" ) exitscr;;
 "3" ) settings;;
-esac
-}
+esac;}
 function about(){
 screen=about
 clear
@@ -136,8 +119,7 @@ read -sn1 ch
 case "$ch" in
 "S"|"s" ) start;;
 "D"|"d" ) desktop;;
-esac
-}
+esac;}
 function settings(){
 screen=settings
 clear
@@ -165,8 +147,7 @@ case "$ch" in
 "S"|"s" ) start;;
 "D"|"d" ) desktop;;
 "I"|"i" ) curl -s https://raw.githubusercontent.com/Russanandres/YDE/main/de.sh | bash;;
-esac
-}
+esac;}
 function clock(){
 clear
 while sleep 1; do
@@ -188,8 +169,7 @@ echo "│                                                            │"
 echo "│ Press CTRL + C to exit                                     │"
 echo "└────────────────────────────────────────────────────────────┘"
 trap "desktop" EXIT
-done
-}
+done;}
 function reinstall(){
 printf '\033[8;17;66t'
 screen=reinstall
@@ -204,14 +184,12 @@ echo "      Hello!"
 echo
 echo "      We are reinstalling your YDE fallback."
 echo "      Please wait."
-loading &
 sudo rm $int
 sudo cp ./$0 $int
 sudo chmod +x $int
 sleep 2
 kill "$!"
-exitscr
-}
+exitscr;}
 function remove(){
 printf '\033[8;17;66t'
 screen=remove
@@ -257,8 +235,7 @@ echo "      We are waiting for you again!"
 echo "      The uninstaller will close in a couple of seconds."
 echo
 sleep 3
-exitscr
-}
+exitscr;}
 if [ "$screen" == "startingup" ]; then desktop; else $screen; fi
 done
 else
@@ -288,7 +265,6 @@ echo
 echo
 echo "    We installing the required parts..."
 echo
-loading &
 sudo cp ./$0 $int
 sudo chmod +x $int
 sudo mkdir /usr/share/YDE
@@ -319,7 +295,7 @@ sleep 3
  clear
  echo "Run safeui to run shell."
  echo
- echo "Your Fallback Desktop Environment $VER - 2022-$(date +%Y). Russanandres"
+ echo "Your Fallback Desktop Environment $VER - 2022-2023. Russanandres"
  date
  exit
 fi
