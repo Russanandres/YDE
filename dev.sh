@@ -2,13 +2,16 @@
 
 VER="1.0"
 startuptime=$(date)
-userdata="~/.config/YDE"
+export SAVED_STTY="`stty --save`"
+userdata="$HOME/.config/YDE"
 int="/usr/bin/runui"
-source /usr/share/YDE/settings.conf
-source ~/.config/YDE/settings.conf
+source /usr/share/YDE/settings.conf &> /dev/null
+source $HOME/.config/YDE/settings.conf &> /dev/null
 
 function pause(){ read -p "Press ENTER to continue....";}
 function exitscr(){
+ stty "$SAVED_STTY"
+ tput cnorm
  kill "$!"
  clear
  echo "Your Desktop Environment $VER - 2022-2023. Russanandres"
@@ -22,22 +25,21 @@ function loading() {
     while sleep 0.1; do
         printf "%s\b" "${sp:i++%n:1}"
     done;}
-trap "exitscr" SIGINT
+trap "stty "$SAVED_STTY";exitscr" SIGINT
 
 if [ -f "$int" ]; then inst="true "
 else inst="false"
 fi
 
 
-
 function check(){
-mkdir -v ~/.config/YDE/
-mkdir -v ~/.config/YDE/themes
-mkdir -v ~/.config/YDE/languages
-mkdir -v ~/.config/YDE/old
-mkdir -v ~/.config/YDE/apps
-touch ~/.config/YDE/settings.conf
-echo -e "\nEnter root password to check all users directory."
+mkdir -vp $HOME/.config/YDE/
+mkdir -v $HOME/.config/YDE/themes
+mkdir -v $HOME/.config/YDE/languages
+mkdir -v $HOME/.config/YDE/old
+mkdir -v $HOME/.config/YDE/apps
+touch $HOME/.config/YDE/settings.conf
+echo -e "\nEnter root password to check systemwide directory."
 sudo mkdir -v /usr/share/YDE
 sudo touch /usr/share/YDE/settings.conf
 echo "YDE files has been successfully checked!";exit; }
@@ -68,23 +70,26 @@ while [ "$1" != "" ]; do
 
 
         -h | --help )       helpscr;;
-        -f | --force-quit ) exitscr;;
+        -q | --force-quit ) exitscr;;
         -c | --legacy )     curl -s https://raw.githubusercontent.com/Russanandres/YDE/main/YDE_fallback.sh | bash;;
-        -p | --portable )   portable="true";;
+        -p | --portable )   portable="1";;
+        -f | --fastboot )   fastboot="true";;
 
 
         --version ) echo -e "Your Desktop Environment $VER by Russanandres. \nThanks for using!";exit;;
-        --backup )  mkdir -p ~/.config/YDE_old/$(date +%d-%m-%y)
-                    cp -r ~/.config/YDE ~/.config/YDE_old/$(date +%d-%m-%y); s1=$?
-                    cp $int ~/.config/YDE_old/$(date +%d-%m-%y); s2=$?
+        --backup )  backuppath="$HOME/.config/YDE_old/$(date +%d-%m-%y)"
+                    mkdir -p $backuppath; echo "Created folder $backuppath"
+                    cp -r $HOME/.config/YDE $backuppath; s1=$?; if [ "$s1" == "0" ]; then echo "Copied user folder"; fi
+                    cp $int $backuppath; s2=$?; if [ "$s2" == "0" ]; then echo "Copied script"; fi
                     if [ "$s1" == "0" ] && [ "$s2" == "0" ]; then echo "Backup successfull";exit
-                    else echo "Can't create backup!";exit;fi;;
+                    else echo "Can't create backup!";rm -rf $backuppath;exit;fi;;
         --check )   check;;
         --func ) gotofunc=$2; shift;;
-        --erase-all-content ) rm /tmp/updatingYDE.tmp; rm ~/.config/YDE/settings.conf; sudo rm /usr/share/YDE/settings.conf
+        --turn-off-blink ) tput civis;;
+        --erase-all-content ) rm /tmp/updatingYDE.tmp; rm -r $HOME/.config/YDE/; sudo rm /usr/share/YDE/settings.conf
                               check;;
         --target ) if [ -z "$2" ]; then echo -e "Please enter install path after variable \nLike --target /usr/bin/yde"; exit; else int=$2;shift;fi;;
-        --userdata )  if [ -z "$2" ]; then echo a >> /dev/null;else userdatanew=$2;echo userdata=$userdatanew >> $userdata/settings.conf;shift;fi;; #EXPEREMENTAL
+        --userdata )  if [ -z "$2" ]; then true;else userdatanew=$2;echo "userdata=$userdatanew" >> $userdata/settings.conf;shift;fi;; #EXPEREMENTAL
     esac
     shift
 done
@@ -94,13 +99,11 @@ clear
 
 if [ "$startupcheckupdate" == "enable" ]; then
 loading &
- gitver=$(curl -f -# https://raw.githubusercontent.com/Russanandres/YDE/main/lastversion)
- if [ "$VER" == "$gitver" ]; then echo "All ok!";sleep 0.5
- elif [ "$gitver" -gt "$VER" ]; then
-  echo "You have old version of script! Please update it!";pause
- elif [ "$gitver" -lt "$VER" ]; then
-  echo "You have newer version, than repository! Please create issue in github!";pause
- fi
+gitver=$(curl -f -# https://raw.githubusercontent.com/Russanandres/YDE/main/lastversion)
+if [ "$VER" == "$gitver" ]; then echo "All ok!";sleep 0.5
+elif [ "$gitver" -gt "$VER" ]; then echo "You have old version of script! Please update it!";pause
+elif [ "$gitver" -lt "$VER" ]; then echo "You have newer version, than repository! Please create issue in github!";pause
+fi
 kill "$!";fi
 
 if [ -f "/tmp/updatingYDE.tmp" ]; then
@@ -113,67 +116,81 @@ kill "$!"
 clear
 fi
 
-if [ ! -f "$HOME/.config/YDE/settings.conf" ]; then
-echo -e "Your data folder is corrupted!\n\nRecreate? [Y/n]"
+if [ ! -f "$HOME/.config/YDE/settings.conf" ] && [ "$portable" != "1" ]; then
+echo -e "Your config file is corrupted!\n\nCheck YDE files? [Y/n]\n"
 read -sn1 rec
 case "$rec" in
 "Y"|"y" )
-mkdir ~/.config/YDE/
-mkdir ~/.config/YDE/themes
-mkdir ~/.config/YDE/languages
-mkdir ~/.config/YDE/old
-mkdir ~/.config/YDE/apps
-touch ~/.config/YDE/settings.conf
-touch ~/.config/YDE/apps/list
-echo THEME=classic >> ~/.config/YDE/settings.conf
-echo int=$int >> ~/.config/YDE/settings.conf;;
+mkdir $HOME/.config/YDE/
+mkdir $HOME/.config/YDE/themes
+mkdir $HOME/.config/YDE/languages
+mkdir $HOME/.config/YDE/old
+mkdir $HOME/.config/YDE/apps
+touch $HOME/.config/YDE/settings.conf
+touch $HOME/.config/YDE/apps/list
+echo "int=$int" >> $HOME/.config/YDE/settings.conf;;
 esac
-elif [ "$1" == "-p" ] || [ "$1" == "--portable" ]; then true
+elif [ "$portable" == "1" ]; then true
 fi
 
-if [ -f "$int" ] || [ "$1" == "-p" ] || [ "$1" == "--portable" ]; then
+if [ -f "$int" ] || [ "$portable" == "1" ]; then
 clear
-echo "Loading Your Desktop Environment..."
-echo
-loading &
+echo -n "┌                                                                                                      ┐
+
+
+                                    Loading Your Desktop Environment
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                                   ";tput civis;loading &
 screen=startingup
-source /usr/share/YDE/settings.conf
-if [ "$fastboot" == "true" ]; then
-echo
-else
-sleep 1
-fi
+stty -icanon -icrnl time 0 min 0
+if [ "$fastboot" != "true" ]; then sleep 1.3;fi
 printf '\033[8;27;104t'
-kill "$!"
-while true; do
+kill "$!";tput cnorm
+
+while true; do ################## PT Start of something beautiful (Hell no)
 function start(){
 screen=start
 clear
-echo "┌───────────────────────────────────────────── Homescreen ─────────────────────────────────────────────┐"
-echo "│                                                                                                      │"
-echo "│  ┌───┐            ┌───┐               ┌───┐                                                          │"
-echo "│  │ A │ About YDE  │ M │ Misc          │ X │ Clock-kit                                                │"
-echo "│  └───┘            └───┘               └───┘                                                          │"
-echo "│  ┌───┐            ┌───┐                                                                              │"
-echo "│  │ E │ Exit YDE   │ C │ Configurator                                                                 │"
-echo "│  └───┘            └───┘                                                                              │"
-echo "│  ┌───┐                                                                                               │"
-echo "│  │ P │ Powermenu                                                                                     │"
-echo "│  └───┘                                                                                               │"
-echo "│  ┌───┐                                                                                               │"
-echo "│  │ L │ Lock PC                                                                                       │"
-echo "│  └───┘                                                                                               │"
-echo "│                                                                                                      │"
-echo "│                                                                                                      │"
-echo "│                                                                                                      │"
-echo "│                                                                                                      │"
-echo "│                                                                                     ┌───┐            │"
-echo "│                                                                                     │ Q │ Your apps  │"
-echo "│  [W] All apps                                                                       └───┘            │"
-echo "│                                                                                                      │"
-echo "├──────────────────────────────────────────────────────────────────────────────────────────────────────┤"
-echo "│ [YDE] $VER                                                                         [$(date +%D)] [$(date +%H:%M)] │"
-echo "└──────────────────────────────────────────────────────────────────────────────────────────────────────┘"
+echo -e "┌───────────────────────────────────────────── Homescreen ─────────────────────────────────────────────┐
+│                                                                                                      │
+│  ┌───┐            ┌───┐               ┌───┐                                                          │
+│  │ A │ About YDE  │ M │ Misc          │ X │ Clock-kit                                                │
+│  └───┘            └───┘               └───┘                                                          │
+│  ┌───┐            ┌───┐                                                                              │
+│  │ E │ Exit YDE   │ C │ Configurator                                                                 │
+│  └───┘            └───┘                                                                              │
+│  ┌───┐                                                                                               │
+│  │ P │ Powermenu                                                                                     │
+│  └───┘                                                                                               │
+│  ┌───┐                                                                                               │
+│  │ L │ Lock PC                                                                                       │
+│  └───┘                                                                                               │
+│                                                                                                      │
+│                                                                                                      │
+│                                                                                                      │
+│                                                                                                      │
+│                                                                                     ┌───┐            │
+│                                                                                     │ Q │ Your apps  │
+│  [W] All apps                                                                       └───┘            │
+│                                                                                                      │
+├──────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ [YDE] $VER                                                                         [$(date +%D)] [$(date +%H:%M)] │
+└──────────────────────────────────────────────────────────────────────────────────────────────────────┘"
 read -sn1 ch
 case "$ch" in
 "A"|"a" ) about;;
@@ -197,31 +214,31 @@ esac
 function apps(){
 screen=apps
 clear
-echo "┌─────────────────────────────────────────── Homescreen apps ──────────────────────────────────────────┐"
-echo "│                                                                                                      │"
-echo "│  ┌───┐                                                                                               │"
-echo "│  │ H │ Homescreen                                                                                    │"
-echo "│  └───┘                                                                                               │"
-echo "│  ┌───┐                                                                                               │"
-echo "│  │ D │ Desktop                                                                                       │"
-echo "│  └───┘                                                                                               │"
-echo "│  ┌───┐                                                                                               │"
-echo "│  │ F │ MC FM                                                                                         │"
-echo "│  └───┘                                                                                               │"
-echo "│  ┌───┐                                                                                               │"
-echo "│  │ B │ Browser                                                                                       │"
-echo "│  └───┘                                                                                               │"
-echo "│                                                                                                      │"
-echo "│                                                                                                      │"
-echo "│                                                                                                      │"
-echo "│                                                                                                      │"
-echo "│                                                                                     ┌───┐            │"
-echo "│                                                                                     │ Y │ Your apps  │"
-echo "│                                                                                     └───┘            │"
-echo "│                                                                                                      │"
-echo "├──────────────────────────────────────────────────────────────────────────────────────────────────────┤"
-echo "│ [S] Back to Homescreen                                                            [$(date +%D)] [$(date +%H:%M)] │"
-echo "└──────────────────────────────────────────────────────────────────────────────────────────────────────┘"
+echo -e "┌─────────────────────────────────────────── Homescreen apps ──────────────────────────────────────────┐
+│                                                                                                      │
+│  ┌───┐                                                                                               │
+│  │ H │ Homescreen                                                                                    │
+│  └───┘                                                                                               │
+│  ┌───┐                                                                                               │
+│  │ D │ Desktop                                                                                       │
+│  └───┘                                                                                               │
+│  ┌───┐                                                                                               │
+│  │ F │ MC FM                                                                                         │
+│  └───┘                                                                                               │
+│  ┌───┐                                                                                               │
+│  │ B │ Browser                                                                                       │
+│  └───┘                                                                                               │
+│                                                                                                      │
+│                                                                                                      │
+│                                                                                                      │
+│                                                                                                      │
+│                                                                                     ┌───┐            │
+│                                                                                     │ Y │ Your apps  │
+│                                                                                     └───┘            │
+│                                                                                                      │
+├──────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ [S] Back to Homescreen                                                            [$(date +%D)] [$(date +%H:%M)] │
+└──────────────────────────────────────────────────────────────────────────────────────────────────────┘"
 # echo Battery - [$(cat /sys/class/power_supply/BAT1/capacity)%]
 read -sn1 ch
 case "$ch" in
@@ -238,49 +255,52 @@ esac
 
 function desktop(){
 screen=desktop
+while true; do
 trap "exitscr" SIGINT
 clear
-echo "┌──────────────────────────────────────────── Your Desktop ────────────────────────────────────────────┐"
-echo "│                                                                             Now is:                  │"
-echo "│ [1] - Back to Command line                                              $(date +%D) $(date +%H:%M:%S)            │"
-echo "│ [L] - Lockscreen                                                               $(date +%a)                    │"
-echo "│                                                                                                      │"
-echo "│                                                                                                      │"
-echo "│                                                                                                      │"
-echo "│                  \`8.\`8888.      ,8' 8 888888888o.      8 8888888888                                  │"
-echo "│                   \`8.\`8888.    ,8'  8 8888    \`^888.   8 8888                                        │"
-echo "│                    \`8.\`8888.  ,8'   8 8888        \`88. 8 8888                                        │"
-echo "│                     \`8.\`8888.,8'    8 8888         \`88 8 8888                                        │"
-echo "│                      \`8.\`88888'     8 8888          88 8 888888888888                                │"
-echo "│                       \`8. 8888      8 8888          88 8 8888                                        │"
-echo "│                        \`8 8888      8 8888         ,88 8 8888                                        │"
-echo "│                         8 8888      8 8888        ,88' 8 8888                                        │"
-echo "│                         8 8888      8 8888    ,o88P'   8 8888                                        │"
-echo "│                         8 8888      8 888888888P'      8 888888888888                                │"
-echo "│                                                                                                      │"
-echo "│                                                                                                      │"
-echo "│                                                                                                      │"
-echo "│                                                                                                      │"
-echo "│                                                                                                      │"
-echo "├──────────────────────────────────────────────────────────────────────────────────────────────────────┤"
-echo "│ [S] Homescreen                                                                 [$(date +%D)] [$(date +%H:%M:%S)] │"
-echo "└──────────────────────────────────────────────────────────────────────────────────────────────────────┘"
-read -sn1 ch
-case "$ch" in
+echo -e "┌──────────────────────────────────────────── Your Desktop ────────────────────────────────────────────┐
+│                                                                             Now is:                  │
+│ [1] - Back to Command line                                              $(date +%D) $(date +%H:%M:%S)            │
+│ [L] - Lockscreen                                                               $(date +%a)                   │
+│                                                                                                      │
+│                                                                                                      │
+│                                                                                                      │
+│                        \`8.\`8888.      ,8' 8 888888888o.      8 8888888888                            │
+│                         \`8.\`8888.    ,8'  8 8888    \`^888.   8 8888                                  │
+│                          \`8.\`8888.  ,8'   8 8888        \`88. 8 8888                                  │
+│                           \`8.\`8888.,8'    8 8888         \`88 8 8888                                  │
+│                            \`8.\`88888'     8 8888          88 8 888888888888                          │
+│                             \`8. 8888      8 8888          88 8 8888                                  │
+│                              \`8 8888      8 8888         ,88 8 8888                                  │
+│                               8 8888      8 8888        ,88' 8 8888                                  │
+│                               8 8888      8 8888    ,o88P'   8 8888                                  │
+│                               8 8888      8 888888888P'      8 888888888888                          │
+│                                                                                                      │
+│                                                                                                      │
+│                                                                                                      │
+│                                                                                                      │
+│                                                                                                      │
+├──────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ [S] Homescreen                                                                 [$(date +%D)] [$(date +%H:%M:%S)] │
+└──────────────────────────────────────────────────────────────────────────────────────────────────────┘"
+if read -t 0; then
+read -n 1 char
+case "$char" in
 "I" ) echo "Hello World!"; sleep 2;;
 "S"|"s" ) start;;
 "1" ) exitscr;;
 "L"|"l" ) lock;;
 "=" ) debug;;
-esac
+esac;break
+else sleep 0.5;fi;done
 }
 
 function yourapps(){
 screen=yourapps
-if ! [ -d ~/.config/YDE/apps ]; then
+if ! [ -d $HOME/.config/YDE/apps ]; then
 clear
 echo "I'm a teapot!"
-mkdir ~/.config/YDE/apps
+mkdir $HOME/.config/YDE/apps
 sleep 1
 exit 418
 fi
@@ -290,8 +310,8 @@ echo "- Type yahelp to see wiki"
 echo "- Type edesk to exit to desktop"
 echo "- Apps list:"
 echo
-ls -xX1 ~/.config/YDE/apps/
-# cat ~/.config/YDE/apps/list
+ls -xX1 $HOME/.config/YDE/apps/
+# cat $HOME/.config/YDE/apps/list
 echo
 read selapp
 if [ "$selapp" == "yahelp" ]; then
@@ -304,7 +324,7 @@ pause
 elif [ "$selapp" == "edesk" ]; then
 desktop
 fi
-source ~/.config/YDE/apps/$selapp
+source $HOME/.config/YDE/apps/$selapp
 if [ "$sudo" == "1" ]; then
 sudo bash $run
 elif [ "$sudo" == "0" ]; then
@@ -316,31 +336,31 @@ fi
 function about(){
 screen=about
 clear
-echo "┌──────────────────────────────────────────── About Desktop ───────────────────────────────────────────┐"
-echo "│ Your Desktop Environment                                                                             │"
-echo "│ Version $VER                                                                                          │"
-echo "│                                                                                                      │"
-echo "│                                                                                                      │"
-echo "│                                                                                                      │"
-echo "│                                                                                                      │"
-echo "│                  \`8.\`8888.      ,8' 8 888888888o.      8 8888888888                                  │"
-echo "│                   \`8.\`8888.    ,8'  8 8888    \`^888.   8 8888                                        │"
-echo "│                    \`8.\`8888.  ,8'   8 8888        \`88. 8 8888                                        │"
-echo "│                     \`8.\`8888.,8'    8 8888         \`88 8 8888                                        │"
-echo "│                      \`8.\`88888'     8 8888          88 8 888888888888                                │"
-echo "│                       \`8. 8888      8 8888          88 8 8888                                        │"
-echo "│                        \`8 8888      8 8888         ,88 8 8888                                        │"
-echo "│                         8 8888      8 8888        ,88' 8 8888                                        │"
-echo "│                         8 8888      8 8888    ,o88P'   8 8888                                        │"
-echo "│                         8 8888      8 888888888P'      8 888888888888                                │"
-echo "│                                                                                                      │"
-echo "│                                                                                                      │"
-echo "│                                                                                                      │"
-echo "│                                                                                                      │"
-echo "│                                                                                by Russanandres 2022  │"
-echo "├──────────────────────────────────────────────────────────────────────────────────────────────────────┤"
-echo "│ [S] Homescreen                                                                    [$(date +%D)] [$(date +%H:%M)] │"
-echo "└──────────────────────────────────────────────────────────────────────────────────────────────────────┘"
+echo -e "┌──────────────────────────────────────────── About Desktop ───────────────────────────────────────────┐
+│ Your Desktop Environment                                                                             │
+│ Version $VER                                                                                          │
+│                                                                                                      │
+│                                                                                                      │
+│                                                                                                      │
+│                                                                                                      │
+│                  \`8.\`8888.      ,8' 8 888888888o.      8 8888888888                                  │
+│                   \`8.\`8888.    ,8'  8 8888    \`^888.   8 8888                                        │
+│                    \`8.\`8888.  ,8'   8 8888        \`88. 8 8888                                        │
+│                     \`8.\`8888.,8'    8 8888         \`88 8 8888                                        │
+│                      \`8.\`88888'     8 8888          88 8 888888888888                                │
+│                       \`8. 8888      8 8888          88 8 8888                                        │
+│                        \`8 8888      8 8888         ,88 8 8888                                        │
+│                         8 8888      8 8888        ,88' 8 8888                                        │
+│                         8 8888      8 8888    ,o88P'   8 8888                                        │
+│                         8 8888      8 888888888P'      8 888888888888                                │
+│                                                                                                      │
+│                                                                                                      │
+│                                                                                                      │
+│                                                                                                      │
+│                                                                                by Russanandres 2023  │
+├──────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ [S] Homescreen                                                                    [$(date +%D)] [$(date +%H:%M)] │
+└──────────────────────────────────────────────────────────────────────────────────────────────────────┘"
 read -sn1 ch
 case "$ch" in
 "S"|"s" ) start;;
@@ -351,45 +371,46 @@ esac
 function settings(){
 screen=settings
 clear
-echo "┌────────────────────────────────────────── Desktop Settings ──────────────────────────────────────────┐"
-echo "│                                                                                                      │"
-echo "│ [E] Echo Hello World!                                                                                │"
-echo "│ [-] Installed - $inst                                                                                │"
-echo "│                                                                                                      │"
-echo "│ [U] Check Update                                                                                     │"
-echo "│ [Q] Reinstall from current file                                                                      │"
-echo "│ [R] Remove YDE                                                                                       │"
-echo "│                                                                                                      │"
-echo "│ [C] Compatibility mode                                                                               │"
-echo "│                                                                                                      │"
-echo "│                                                                                                      │"
-echo "│                                                                                                      │"
-echo "│                                                                                                      │"
-echo "│                                                                                                      │"
-echo "│                                                                                                      │"
-echo "│                                                                                                      │"
-echo "│                                                                                                      │"
-echo "│                                                                                                      │"
-echo "│  [F] Enable Fast boot [o] - disable                                                                  │"
-echo "│  [L] Turn-on loading animation [k] - Turn off                                                        │"
-echo "│                                                                                                      │"
-echo "├──────────────────────────────────────────────────────────────────────────────────────────────────────┤"
-echo "│ [S] Homescreen                                                                    [$(date +%D)] [$(date +%H:%M)] │"
-echo "└──────────────────────────────────────────────────────────────────────────────────────────────────────┘"
+echo -e "┌────────────────────────────────────────── Desktop Settings ──────────────────────────────────────────┐
+│                                                                                                      │
+│ [E] Echo Hello World!                                                                                │
+│ [-] Installed - $inst                                                                                │
+│                                                                                                      │
+│ [U] Check Update                                                                                     │
+│ [Q] Reinstall from current file                                                                      │
+│ [R] Remove YDE                                                                                       │
+│                                                                                                      │
+│ [C] Compatibility mode                                                                               │
+│                                                                                                      │
+│                                                                                                      │
+│                                                                                                      │
+│                                                                                                      │
+│                                                                                                      │
+│                                                                                                      │
+│                                                                                                      │
+│                                                                                                      │
+│                                                                                                      │
+│  [F] Enable Fast boot [o] - disable                                                                  │
+│  [L] Turn-on loading animation [k] - Turn off                                                        │
+│                                                                                                      │
+├──────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ [S] Homescreen                                                                    [$(date +%D)] [$(date +%H:%M)] │
+└──────────────────────────────────────────────────────────────────────────────────────────────────────┘"
 read -sn1 ch
 case "$ch" in
 "E"|"e" ) echo "Hello World!"; sleep 2;;
 "U"|"u" ) update;;
 "R"|"r" ) remove;;
 "Q"|"q" ) reinstall;;
-# "T"|"t" ) themes;;
 "C"|"c" ) curl -s https://raw.githubusercontent.com/Russanandres/YDE/main/YDE_fallback.sh | bash;;
 "S"|"s" ) start;;
 "D"|"d" ) desktop;;
 "l" ) loading &;;
 "k" ) kill "$!";;
-"f" ) echo fastboot=true >> ~/.config/YDE/settings.conf;;
-"o" ) echo fastboot=false >> ~/.config/YDE/settings.conf;;
+"f" ) echo fastboot=true >> $HOME/.config/YDE/settings.conf;;
+"o" ) echo fastboot=false >> $HOME/.config/YDE/settings.conf;;
+"b" ) tput civis;;
+"v" ) tput cnorm;;
 esac
 }
 
@@ -428,31 +449,31 @@ if [ $st == '1' ]; then
 else m=00
 fi
 clear
-echo "┌──────────────────────────────────────────── Screen clock ────────────────────────────────────────────┐"
-echo "│                                                                                                      │"
-echo "│                                                                                                      │"
-echo "│              ┌Clock────────────────┐                                                                 │"
-echo "│              │                     │                                                                 │"
-echo "│              │      Now is:        │                                                                 │"
-echo "│              │  $(date +%D) $(date +%H:%M:%S)  │                                                                 │"
-echo "│              │         $(date +%a)          │                                                                 │"
-echo "│              │                     │                                                                 │"
-echo "│              └─────────────────────┘                                                                 │"
-echo "│                                                                                                      │"
-echo "│                                                                                                      │"
-echo "│   ┌Timer────────────────┐      ┌Stopwatch────────────┐            ___  _ ____  _____                 │"
-echo "│   │                     │      │                     │            \  \///  _ \/  __/                 │"
-echo "│   │   Time left:        │      │  Time passed:       │             \  / | | \||  \                   │"
-echo "│   │      $e sec         │      │    $m sec           │             / /  | |_/||  /_                  │"
-echo "│   │                     │      │                     │            /_/   \____/\____\                 │"
-echo "│   │                     │      │                     │                                               │"
-echo "│   └─────────────────────┘      └─────────────────────┘                                               │"
-echo "│                                                                                                      │"
-echo "│                                                                                                      │"
-echo "│                                                                                                      │"
-echo "├──────────────────────────────────────────────────────────────────────────────────────────────────────┤"
-echo "│ Press CTRL + C to exit to desktop                                                                    │"
-echo "└──────────────────────────────────────────────────────────────────────────────────────────────────────┘"
+echo -e "┌──────────────────────────────────────────── Screen clock ────────────────────────────────────────────┐
+│                                                                                                      │
+│                                                                                                      │
+│              ┌Clock────────────────┐                                                                 │
+│              │                     │                                                                 │
+│              │      Now is:        │                                                                 │
+│              │  $(date +%D) $(date +%H:%M:%S)  │                                                                 │
+│              │         $(date +%a)          │                                                                 │
+│              │                     │                                                                 │
+│              └─────────────────────┘                                                                 │
+│                                                                                                      │
+│                                                                                                      │
+│   ┌Timer────────────────┐      ┌Stopwatch────────────┐            ___  _ ____  _____                 │
+│   │                     │      │                     │            \  \///  _ \/  __/                 │
+│   │   Time left:        │      │  Time passed:       │             \  / | | \||  \                   │
+│   │      $e sec         │      │    $m sec           │             / /  | |_/||  /_                  │
+│   │                     │      │                     │            /_/   \____/\____\                 │
+│   │                     │      │                     │                                               │
+│   └─────────────────────┘      └─────────────────────┘                                               │
+│                                                                                                      │
+│                                                                                                      │
+│                                                                                                      │
+├──────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Press CTRL + C to exit to desktop                                                                    │
+└──────────────────────────────────────────────────────────────────────────────────────────────────────┘"
 trap "desktop" EXIT
 if [ $e == '0' ]; then echo "time is out!"; aplay /dev/random; fi
 done
@@ -461,60 +482,62 @@ done
 function lock(){
 while sleep 1; do
 clear
-echo "┌───────────────────────────────────────────── Lockscreen ─────────────────────────────────────────────┐"
-echo "│                                                                                                      │"
-echo "│                                                                                                      │"
-echo "│                                                                                                      │"
-echo "│                                                                                                      │"
-echo "│                     Now is:                                                                          │"
-echo "│                 $(date +%D) $(date +%H:%M:%S)                                                                    │"
-echo "│                        $(date +%a)                                                                            │"
-echo "│                                                                                                      │"
-echo "│                                                                                                      │"
-echo "│                                                                                                      │"
-echo "│                                                                                                      │"
-echo "│                                                                                                      │"
-echo "│                                                                                                      │"
-echo "│                                                                   ___  _ ____  _____                 │"
-echo "│                                                                   \  \///  _ \/  __/                 │"
-echo "│                                                                    \  / | | \||  \                   │"
-echo "│                                                                    / /  | |_/||  /_                  │"
-echo "│                                                                   /_/   \____/\____\                 │"
-echo "│                                                                                                      │"
-echo "│                                                                                                      │"
-echo "│                                                                                                      │"
-echo "├──────────────────────────────────────────────────────────────────────────────────────────────────────┤"
-echo "│ Press CTRL + C to unlock                                                                             │"
-echo "└──────────────────────────────────────────────────────────────────────────────────────────────────────┘"
+echo -e "┌───────────────────────────────────────────── Lockscreen ─────────────────────────────────────────────┐
+│                                                                                                      │
+│                                                                                                      │
+│                                                                                                      │
+│                                                                                                      │
+│                     Now is:                                                                          │
+│                 $(date +%D) $(date +%H:%M:%S)                                                                    │
+│                        $(date +%a)                                                                           │
+│                                                                                                      │
+│                                                                                                      │
+│                                                                                                      │
+│                                                                                                      │
+│                                                                                                      │
+│                                                                                                      │
+│                                                                   ___  _ ____  _____                 │
+│                                                                   \  \///  _ \/  __/                 │
+│                                                                    \  / | | \||  \                   │
+│                                                                    / /  | |_/||  /_                  │
+│                                                                   /_/   \____/\____\                 │
+│                                                                                                      │
+│                                                                                                      │
+│                                                                                                      │
+├──────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Press CTRL + C to unlock                                                                             │
+└──────────────────────────────────────────────────────────────────────────────────────────────────────┘"
 trap "break" SIGINT
 done
+}
+function unlock(){
 clear
-echo "┌───────────────────────────────────────────── Lockscreen ─────────────────────────────────────────────┐"
-echo "│                                                                                                      │"
-echo "│                                                                                                      │"
-echo "│                                                                                                      │"
-echo "│                                Please enter passcode                                                 │"
-echo "│                                                                                                      │"
-echo "│                                                                                                      │"
-echo "│                                                                                                      │"
-echo "│                                                                                                      │"
-echo "│                                                                                                      │"
-echo "│                                                                                                      │"
-echo "│                                                                                                      │"
-echo "│                                                                                                      │"
-echo "│                                                                                                      │"
-echo "│                                                                   ___  _ ____  _____                 │"
-echo "│                                                                   \  \///  _ \/  __/                 │"
-echo "│                                                                    \  / | | \||  \                   │"
-echo "│                                                                    / /  | |_/||  /_                  │"
-echo "│                                                                   /_/   \____/\____\                 │"
-echo "│                                                                                                      │"
-echo "│                                                                                                      │"
-echo "│                                                                                                      │"
-echo "├──────────────────────────────────────────────────────────────────────────────────────────────────────┤"
-echo "│ Unlock PC with your password                                                                         │"
-echo "└──────────────────────────────────────────────────────────────────────────────────────────────────────┘"
-read pass
+echo -e "┌───────────────────────────────────────────── Lockscreen ─────────────────────────────────────────────┐
+│                                                                                                      │
+│                                                                                                      │
+│                                                                                                      │
+│                Please enter passcode                                                                 │
+│                                                                                                      │
+│                                                                                                      │
+│                                                                                                      │
+│                                                                                                      │
+│                                                                                                      │
+│                                                                                                      │
+│                                                                                                      │
+│                                                                                                      │
+│                                                                                                      │
+│                                                                   ___  _ ____  _____                 │
+│                                                                   \  \///  _ \/  __/                 │
+│                                                                    \  / | | \||  \                   │
+│                                                                    / /  | |_/||  /_                  │
+│                                                                   /_/   \____/\____\                 │
+│                                                                                                      │
+│                                                                                                      │
+│                                                                                                      │
+├──────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Unlock PC with your password                                                                         │
+└──────────────────────────────────────────────────────────────────────────────────────────────────────┘"
+read -e pass
 if [ $pass1 -eq $pass ]; then desktop; else echo "Password do not match! Please try again!"; sleep 3; lock; fi
 pause
 }
@@ -532,31 +555,31 @@ function exitt()
     echo
     if [[ $exitt == 1 ]]; then
 clear
-echo "┌────────────────────────────────────────────── Shutdown ──────────────────────────────────────────────┐"
-echo "│                                                                                                      │"
-echo "│  ┌───┐                                                                                               │"
-echo "│  │ E │ Exit YDE                                                                                      │"
-echo "│  └───┘                                                                                               │"
-echo "│  ┌───┐                                                                                               │"
-echo "│  │ P │ Poweroff                                                                                      │"
-echo "│  └───┘                                                                                               │"
-echo "│  ┌───┐                                                                                               │"
-echo "│  │ D │ Desktop                                                                                       │"
-echo "│  └───┘                                                                                               │"
-echo "│                                                                                                      │"
-echo "│                                                                                                      │"
-echo "│                                                                                                      │"
-echo "│                                                                                                      │"
-echo "│                                                                                                      │"
-echo "│                                                                                                      │"
-echo "│                                                                                                      │"
-echo "│                                                                                                      │"
-echo "│                                                                                                      │"
-echo "│                                                                                                      │"
-echo "│                                                                                                      │"
-echo "├──────────────────────────────────────────────────────────────────────────────────────────────────────┤"
-echo "│ [YDE]                                                                             [$(date +%D)] [$(date +%H:%M)] │"
-echo "└──────────────────────────────────────────────────────────────────────────────────────────────────────┘"
+echo -e "┌────────────────────────────────────────────── Shutdown ──────────────────────────────────────────────┐
+│                                                                                                      │
+│  ┌───┐                                                                                               │
+│  │ E │ Exit YDE                                                                                      │
+│  └───┘                                                                                               │
+│  ┌───┐                                                                                               │
+│  │ P │ Poweroff                                                                                      │
+│  └───┘                                                                                               │
+│  ┌───┐                                                                                               │
+│  │ D │ Desktop                                                                                       │
+│  └───┘                                                                                               │
+│                                                                                                      │
+│                                                                                                      │
+│                                                                                                      │
+│                                                                                                      │
+│                                                                                                      │
+│                                                                                                      │
+│                                                                                                      │
+│                                                                                                      │
+│                                                                                                      │
+│                                                                                                      │
+│                                                                                                      │
+├──────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ [YDE]                                                                             [$(date +%D)] [$(date +%H:%M)] │
+└──────────────────────────────────────────────────────────────────────────────────────────────────────┘"
 read -sn1 ch
 case "$ch" in
 "P"|"p" ) clear; echo "Shut Down? [Y/n]"; read -sn1 ch; case "$ch" in "Y"|"y") sudo poweroff; esac;;
@@ -631,7 +654,7 @@ On_IPurple='\033[0;105m'  # Purple
 On_ICyan='\033[0;106m'    # Cyan
 On_IWhite='\033[0;107m'   # White
 function colored(){
-source ~/.config/YDE/colors.sh
+source $HOME/.config/YDE/colors.sh
 echo
 echo -e "${Cyan}This ${BIPurple}text ${BBlue}written ${IGreen}with ${On_IRed}different${No_color} ${UWhite}colors!" # ${}
 echo -e ${No_color}
@@ -650,8 +673,8 @@ ExecStart=/usr/bin/runui
 Restart=on-failure
 
 [Install]
-WantedBy=multi-user.target" >> $HOME/.config/systemd/user/ydemanage.service
-systemctl --user start ydemanage
+WantedBy=multi-user.target" >> $HOME/.config/systemd/user/ydemanager.service
+systemctl --user start ydemanager
 if [ $? != 0 ]; then echo -e "Can't start daemon service.\n\nDo you use systemd?"; pause; fi
 }
 
@@ -661,7 +684,7 @@ clear
 echo "Under construction.
 
 r - resscr (Start YDE management service daemon for systemd)"
-read ch
+read -sn1 ch
 case "$ch" in
 "=" ) screen=desktop; desktop;;
 "r" ) resscr;;
@@ -674,103 +697,105 @@ screen=configurator
 printf '\033[8;27;107t'
 clear
 parts=8
-echo
-echo "   ┌────────────────────────────────────────────────────────────────────────────────────────────────────┐"
-echo "   │YDE Configurator                                                                      [part 1 of $parts] │"
-echo "   └────────────────────────────────────────────────────────────────────────────────────────────────────┘"
-echo
-echo
-echo "      Welcome to the YDE Configurator."
-echo
-echo "      We will ask you questions to set up the environment."
-echo "      Application changes will be after all questions."
-echo
-echo "       - Press ENTER to continue."
-echo "       - Press CTRL + C to exit."
-echo
+echo -e "
+   ┌────────────────────────────────────────────────────────────────────────────────────────────────────┐
+   │ YDE Configurator                                                                     [part 1 of $parts] │
+   └────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+
+         Welcome to the YDE Configurator.
+
+         We will ask you questions to set up the environment.
+         Application changes will be after all questions.
+
+          - Press ENTER to continue
+          - Press CTRL + C to exit
+"
 pause
 clear
-echo
-echo "   ┌────────────────────────────────────────────────────────────────────────────────────────────────────┐"
-echo "   │YDE Configurator                                                                      [part 2 of $parts] │"
-echo "   └────────────────────────────────────────────────────────────────────────────────────────────────────┘"
-echo
-echo
-echo "        Download ALL needed parts?"
-echo "        [ncal, wget, dialog, bash, sudo]"
-echo
-echo "         - Type [Y] to Download."
-echo "         - Type [N] to Continue."
-echo
+echo -e "
+   ┌────────────────────────────────────────────────────────────────────────────────────────────────────┐
+   │ YDE Configurator                                                                     [part 2 of $parts] │
+   └────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+
+         Download ALL needed parts?
+         [ncal, wget, dialog, bash, sudo]
+
+          - Type [Y] to Download
+          - Type [N] to Continue
+"
 read -sn1 two
 clear
-echo
-echo "   ┌────────────────────────────────────────────────────────────────────────────────────────────────────┐"
-echo "   │YDE Configurator                                                                      [part 3 of $parts] │"
-echo "   └────────────────────────────────────────────────────────────────────────────────────────────────────┘"
-echo
-echo
-echo "        Enable startup update checker?"
-echo
-echo "         - Type [Y] to Enable."
-echo "         - Type [N] to Diasble."
-echo
+echo -e "
+   ┌────────────────────────────────────────────────────────────────────────────────────────────────────┐
+   │ YDE Configurator                                                                     [part 3 of $parts] │
+   └────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+
+        Enable startup update checker?
+
+         - Type [Y] to Enable
+         - Type [N] to Diasble
+         - Type [S] to Skip
+"
 read -sn1 three
 clear
-echo
-echo "   ┌────────────────────────────────────────────────────────────────────────────────────────────────────┐"
-echo "   │YDE Configurator                                                                      [part 4 of $parts] │"
-echo "   └────────────────────────────────────────────────────────────────────────────────────────────────────┘"
-echo
-echo
-echo "        Run YDE After logining in TTY?"
-echo "        We just write [/usr/bin/runui] in .bash_profile"
-echo "        WARNING!"
-echo "        You will need delete this line with text editor yourself if you want to disable it!"
-echo
-echo "         - Type [Y] to Enable."
-echo "         - Type [N] to Continue."
-echo
+echo -e "
+   ┌────────────────────────────────────────────────────────────────────────────────────────────────────┐
+   │ YDE Configurator                                                                     [part 4 of $parts] │
+   └────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+
+        Run YDE After logining in TTY?
+        We just write [/usr/bin/runui] in .bash_profile
+        WARNING!
+        You will need delete this line with text editor yourself if you want to disable it!
+
+         - Type [Y] to Enable
+         - Type [N] to Continue
+"
 read -sn1 four
 clear
-echo
-echo "   ┌────────────────────────────────────────────────────────────────────────────────────────────────────┐"
-echo "   │YDE Configurator                                                                      [part 5 of $parts] │"
-echo "   └────────────────────────────────────────────────────────────────────────────────────────────────────┘"
-echo
-echo
-echo "        Enable Fastboot?"
-echo
-echo "         - Type [Y] to Enable."
-echo "         - Type [N] to Diasble."
-echo
+echo -e "
+   ┌────────────────────────────────────────────────────────────────────────────────────────────────────┐
+   │ YDE Configurator                                                                     [part 5 of $parts] │
+   └────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+
+        Enable Fastboot?
+
+         - Type [Y] to Enable
+         - Type [N] to Diasble
+         - Type [S] to Skip
+"
 read -sn1 five
 clear
-echo
-echo "   ┌────────────────────────────────────────────────────────────────────────────────────────────────────┐"
-echo "   │YDE Configurator                                                                      [part 6 of $parts] │"
-echo "   └────────────────────────────────────────────────────────────────────────────────────────────────────┘"
-echo
-echo
-echo "        Setup lockscreen password?"
-echo "        PASSWORD WILL NOT BE ENCRYPTED!!!"
-echo
-echo "         - Type [N] to Diasble."
-echo "         - Or type pasword."
-echo
+echo -e "
+   ┌────────────────────────────────────────────────────────────────────────────────────────────────────┐
+   │ YDE Configurator                                                                     [part 6 of $parts] │
+   └────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+
+        Setup lockscreen password?
+        PASSWORD WILL NOT BE ENCRYPTED!!!
+
+         - Type [S] to Skip
+         - Or type pasword
+"
 read six
 clear
-echo
-echo "   ┌────────────────────────────────────────────────────────────────────────────────────────────────────┐"
-echo "   │YDE Configurator                                                                      [part 7 of $parts] │"
-echo "   └────────────────────────────────────────────────────────────────────────────────────────────────────┘"
-echo
-echo
-echo "        Apply current configuration for all users?"
-echo
-echo "         - Type [Y] to Enable."
-echo "         - Type [N] to Diasble."
-echo
+echo -e "
+   ┌────────────────────────────────────────────────────────────────────────────────────────────────────┐
+   │ YDE Configurator                                                                     [part 7 of $parts] │
+   └────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+
+        Apply current configuration for all users?
+
+         - Type [Y] to Enable
+         - Type [N] to Diasble
+"
 read -sn1 seven
 # clear
 # echo
@@ -805,14 +830,26 @@ read -sn1 seven
 # read langscr
 # wget -q -O /tmp/lang.$langscr //raw.githubusercontent.com/Russanandres/YDE/main/langs/lang.$langscr
 # source /tmp/ydelang.$langscr
+
+clear
+echo -e "
+   ┌────────────────────────────────────────────────────────────────────────────────────────────────────┐
+   │ YDE Configurator                                                                     [part 8 of $parts] │
+   └────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+
+        YDE is being configurating...
+
+"
+
 case "$two" in
 "Y"|"y" ) sudo apt install -y ncal dialog wget bash w3m w3m-img mc mpv aplay ; apt install -y ncal dialog wget bash sudo w3m w3m-img mc mpv aplay ;;
 esac
 
 
 case "$three" in
-"Y"|"y" ) echo startupcheckupdate=enable >> ~/.config/YDE/settings.conf;;
-"N"|"n" ) echo startupcheckupdate=disable >> ~/.config/YDE/settings.conf;;
+"Y"|"y" ) echo startupcheckupdate=enable >> $HOME/.config/YDE/settings.conf;;
+"N"|"n" ) echo startupcheckupdate=disable >> $HOME/.config/YDE/settings.conf;;
 esac
 
 
@@ -822,22 +859,21 @@ esac
 
 
 case "$five" in
-"Y"|"y" ) echo fastboot=true >> ~/.config/YDE/settings.conf;;
-"N"|"n" ) echo fastboot=false >> ~/.config/YDE/settings.conf;;
+"Y"|"y" ) echo fastboot=true >> $HOME/.config/YDE/settings.conf;;
+"N"|"n" ) echo fastboot=false >> $HOME/.config/YDE/settings.conf;;
 esac
 
 case "$six" in
-"N"|"n" ) echo ;;
-* ) echo pass1=$seven >> ~/.config/YDE/settings.conf
+"S"|"s" ) true;;
+* ) echo pass1=$seven >> $HOME/.config/YDE/settings.conf
 esac
 
 
 case "$seven" in
-"Y"|"y" ) sudo rm /usr/share/YDE/settings.conf; sudo cp ~/.config/YDE/settings.conf /usr/share/YDE/settings.conf;;
-"N"|"n" ) sudo rm /usr/share/YDE/settings.conf; sudo touch /usr/share/YDE/settings.conf;;
+"Y"|"y" ) sudo rm /usr/share/YDE/settings.conf; sudo cp $HOME/.config/YDE/settings.conf /usr/share/YDE/settings.conf;;
 esac
 
-
+sleep 2
 printf '\033[8;27;104t'
 
 
@@ -880,12 +916,12 @@ echo
 echo
 echo "    We updating your Desktop Environment..."
 loading &
-# if [ "$(wc -l ~/.config/YDE/settings.conf | head -c1)" -gt "30" ]; then
+# if [ "$(wc -l $HOME/.config/YDE/settings.conf | head -c1)" -gt "30" ]; then
 # break
 # else
-# echo Sorry, but we need to erase all your settings. You have 3 second to press CTRL + C and save your config file in ~/.config/YDE/settings.conf
+# echo Sorry, but we need to erase all your settings. You have 3 second to press CTRL + C and save your config file in $HOME/.config/YDE/settings.conf
 # sleep 3
-# rm ~/.config/YDE/settings.conf
+# rm $HOME/.config/YDE/settings.conf
 # fi
 touch /tmp/updatingYDE.tmp
 wget https://raw.githubusercontent.com/Russanandres/YDE/main/de.sh
@@ -908,12 +944,14 @@ echo "      Hello!"
 echo
 echo "      We are reinstalling your YDE."
 echo "      Please wait..."
+tput civis
 loading &
 sudo rm $int
 sudo cp ./$0 $int
 sudo chmod +x $int
 sleep 2
 kill "$!"
+tput cnorm
 exitscr
 }
 
@@ -959,15 +997,17 @@ echo
 echo
 echo "   We uninstalling YDE. Please wait."
 echo
+tput civis
 loading &
 sudo rm $int
 if [ "$deluserdata" == "Y" ]; then
-mv ~/.config/YDE /tmp/YDE/$USER/
+mv $HOME/.config/YDE /tmp/YDE/$USER/
 mv /usr/share/YDE /tmp/YDE/system/
-rm -rf ~/.config/YDE
+rm -rf $HOME/.config/YDE
 sleep 2
 fi
 kill "$!"
+tput cnorm
 clear
 echo
 echo "   ┌────────────────────────────────────────────────────────────────────────────────────────────────────┐"
@@ -1026,20 +1066,22 @@ echo
 echo
 echo "    We installing the required parts..."
 echo
+tput civis
 loading &
 sudo cp ./$0 $int
 sudo chmod +x $int
 sudo mkdir /usr/share/YDE
-mkdir ~/.config/YDE/
-mkdir ~/.config/YDE/themes
-mkdir ~/.config/YDE/languages
-mkdir ~/.config/YDE/old
-mkdir ~/.config/YDE/apps
-touch ~/.config/YDE/settings.conf
+mkdir -p $HOME/.config/YDE/
+mkdir $HOME/.config/YDE/themes
+mkdir $HOME/.config/YDE/languages
+mkdir $HOME/.config/YDE/old
+mkdir $HOME/.config/YDE/apps
+touch $HOME/.config/YDE/settings.conf
 sudo touch /usr/share/YDE/settings.conf
-echo int=$int >> ~/.config/YDE/settings.conf
+echo int=$int >> $HOME/.config/YDE/settings.conf
 sleep 2
 kill "$!"
+tput cnorm
 clear
 echo
 echo "   ┌────────────────────────────────────────────────────────────────────────────────────────────────────┐"
@@ -1053,6 +1095,7 @@ echo "      Please write runui to run YDE."
 echo "      The installer will close in a couple of seconds."
 echo
 sleep 3
+stty "$SAVED_STTY"
 clear
 echo -e "Run runui to run shell.\n\nYour Desktop Environment $VER - 2022-2023. Russanandres"
 date
