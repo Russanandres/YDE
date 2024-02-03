@@ -13,6 +13,26 @@ updcheck=0;fastboot=0;logon=0;lock=0;sw=0
 source $sysset &> /dev/null
 source $HOME/.config/YDE/settings.conf &> /dev/null
 
+# TODO:
+#
+# [R] - Rework
+# [N] - Fresh start
+# [D] - Test needs (almost done)
+#
+# [R] Settings management in files
+# [R] YDE Configurator
+# [R] YDE updating utility
+# [R] Bash Fallback
+# [D] Backup
+# [N] About system
+# [N] My Apps
+#
+#
+# Warning! Some places contains character icons, such as diskette, desktop, MailBox, etc.
+# Some fonts, terminals or systems, for example tty, haven't this symbols in their fonts. They will be tofu!
+#
+
+
 
 function pause(){ read -sn1 -p "Press ENTER to continue....";}
 function sttynorm(){ stty "$SAVED_STTY"; }
@@ -21,7 +41,7 @@ function exitscr(){
  tput cnorm
  kill "$!"
  clear
- echo "Your Desktop Environment $VER - 2022-2023. Russanandres"
+ echo "Your Desktop Environment $VER - 2022-2024. Russanandres"
  date
  exit;}
 function loading() {
@@ -101,7 +121,7 @@ while [ "$1" != "" ]; do
                     if [ "$s1" == "0" ] && [ "$s2" == "0" ]; then echo "Backup successfull";exit
                     else echo "Can't create backup!";rm -rf $backuppath;exit;fi;;
         --check )   check;;
-        --erase-content ) rm /tmp/updatingYDE.tmp; rm -r $HOME/.config/YDE/; sudo rm /usr/share/YDE/settings.conf;check;;
+        --erase-content ) rm -r $HOME/.config/YDE/; sudo rm /usr/share/YDE/settings.conf;check;;
         --settings ) source $2; set=$2;shift;;
         --sudo ) sudo=1;;
         --target ) if [ -z "$2" ]; then echo -e "Please enter install path after variable \nLike --target /usr/bin/yde"; exit
@@ -113,10 +133,11 @@ while [ "$1" != "" ]; do
         --no-check-integrity ) nocheck=1;;
         --observe-size ) windows;;
         # Modify startup environments (as possible)
-        --check-updates )   updcheck="1";;
-        --logon ) logon="1";;
-        --lock ) lock="1"; pass1=$2;shift;;
-        --sw ) sw="1";;
+        --dv-check-updates )   updcheck="1";;
+        --dv-logon ) logon="1";;
+        --dv-lock ) lock="1"; pass1=$2;shift;;
+        --dv-sw ) sw="1";;
+        --dv-temp-set-on-all-startup-modifications ) updcheck=1;fastboot=1;logon=1;lock=1;sw=1;;
     esac
     shift
 done
@@ -133,12 +154,13 @@ elif [ "$gitver" -lt "$VER" ]; then echo "You somehow have newer version, than a
 fi
 kill "$!";fi
 
-if [ -f "/tmp/updatingYDE.tmp" ]; then
+function execsudo(){ if [ "$sudo" == "1" ]; then sudo $@;else $@;fi; }
+
+if [ "$PWD" == "/tmp" ] && [ "$0" == "yde.sh" ]; then
 loading &
-sudo rm $int
-sudo cp ./$0 $int
-sudo chmod +x $int
-rm /tmp/updatingYDE.tmp
+execsudo rm $int
+execsudo cp ./$0 $int
+execsudo chmod +x $int
 sleep 2
 kill "$!"
 clear
@@ -212,7 +234,7 @@ clear
 echo -e "┌───────────────────────────────────────────── Homescreen ─────────────────────────────────────────────┐
 │                                                                                                      │
 │  ┌───┐              ┌───┐               ┌───┐                                                        │
-│  │ A │ About YDE    │ X │ Clock         │ ? │ Undefined                                              │
+│  │ A │ About YDE    │ X │ Clock         │ 🖪 │ Undefined                                              │
 │  └───┘              └───┘               └───┘                                                        │
 │  ┌───┐              ┌───┐                                                                            │
 │  │ E │ Exit YDE     │ C │ Configurator                                                               │
@@ -393,11 +415,7 @@ elif [ "$selapp" == "edesk" ]; then
 desktop
 fi
 source $HOME/.config/YDE/apps/$selapp
-if [ "$sudo" == "1" ]; then
-sudo bash $run
-elif [ "$sudo" == "0" ]; then
-bash $run
-fi
+execsudo bash $run
 }
 
 
@@ -425,9 +443,9 @@ echo -e "┌──────────────────────�
 │                                                                                                      │
 │                                                                                                      │
 │                                                                                                      │
-│                                                                                by Russanandres 2023  │
+│                                                                                by Russanandres 2024  │
 ├──────────────────────────────────────────────────────────────────────────────────────────────────────┤
-│ [S] Homescreen                                                                    [$(date +%D)] [$(date +%H:%M)] │
+│  🗔  Homescreen                                                                    [$(date +%D)] [$(date +%H:%M)] │
 └──────────────────────────────────────────────────────────────────────────────────────────────────────┘"
 read -sn1 ch
 case "$ch" in
@@ -447,7 +465,7 @@ trap "exitscr" SIGINT
 clear
 echo -e "
 ┌──────────────────────────────────────────── About System ────────────────────────────────────────────┐
-│                                                                                                      │
+│
 │  System Kernel: $(uname -rm)
 │
 │  OS Type: $OSTYPE
@@ -613,7 +631,7 @@ echo -e "┌──────────────────────�
 └──────────────────────────────────────────────────────────────────────────────────────────────────────┘"
 read -sn1 ch
 case "$ch" in
-"P"|"p" ) clear; echo "Do you really want to shut down? [Y/n]"; read -sn1 ch; case "$ch" in "Y"|"y") sudo poweroff; esac;;
+"P"|"p" ) clear; echo "Do you really want to shut down? [Y/n]"; read -sn1 ch; case "$ch" in "Y"|"y") execsudo poweroff; esac;;
 "E"|"e" ) exitscr;;
 esac;}
 
@@ -737,8 +755,8 @@ l - cols and lines
 a - Reduce config file"
 read -sn1 ch
 case "$ch" in
-"s" ) clear;sudo echo hello; read -sn1 ch;;
-"S" ) if read -t 15; then clear;sudo echo hello; read -sn1 ch;fi;;
+"s" ) clear;execsudo touch $sysset; pause;;
+"S" ) if read -t 15; then clear;execsudo echo hello; pause;fi;;
 "=" ) screen=desktop; desktop;;
 "r" ) resscr;;
 a ) reduceconfig;;
@@ -766,6 +784,7 @@ if [ "$fastboot" == "1" ]; then fbcol="${BGreen}"; else fbcol=${BRed};fi
 if [ "$lock" == "1" ]; then locol="${BGreen}"; else locol=${BRed};fi
 if [ "$sw" == "1" ]; then swcol="${BGreen}"; else swcol=${BRed};fi
 while sleep 1; do
+trap "desktop" SIGINT
 clear
 echo -e "
    ┌────────────────────────────────────────────────────────────────────────────────────────────────┐
@@ -790,8 +809,7 @@ case "$conf" in
     "w" | "W" ) if [ "$RELEASE" == "dev " ];then echo -e "RELEASE=\"user\"" >> $set;RELEASE="user"
                 else echo -e "RELEASE=\"dev \"" >> $set;RELEASE="dev ";fi;;
 
-    "i" | "I" )if [ "$sudo" == "1" ]; then sudo apt install -y ncal dialog wget bash lynx mc mpv
-               else apt install -y ncal dialog wget bash sudo lynx mc mpv;fi;;
+    "i" | "I" )execsudo apt install -y ncal dialog wget bash lynx mc mpv;;
 
     "s" | "S" )if [ "$updcheck" == "1" ]; then echo -e "updcheck=\"0\"" >> $set;updcheck="0";updcol="${BRed}"
                else echo -e "updcheck=\"1\"" >> $set;updcheck="1";updcol="${BGreen}";fi;;
@@ -803,8 +821,8 @@ case "$conf" in
 
     "l" | "L" )sttynorm;echo -e "Enter \"-\" to disable password\nor\nPlease, type your new password:\n";read -s passwd;if [ "$passwd" != "-" ];then echo "pass1=$passwd" >> $set;fi;stty -icanon -icrnl time 0 min 0;;
 
-    "a" | "A" )if [ "$sw" == "1" ];then echo -e "sw=\"0\"" >> $set;sw=0;swcol="${BRed}";if [ "$sudo" == "1" ]; then sudo rm $sysset; sudo cp $HOME/.config/YDE/settings.conf $sysset;else rm $sysset; cp $HOME/.config/YDE/settings.conf $sysset;fi
-               else echo -e "sw=\"1\"" >> $set;sw=1;swcol="${BGreen}";if [ "$sudo" == "1" ]; then sudo rm $sysset; sudo touch $sysset;else rm $sysset; touch $sysset;fi;fi;;
+    "a" | "A" )if [ "$sw" == "1" ];then echo -e "sw=\"0\"" >> $set;sw=0;swcol="${BRed}";execsudo rm $sysset; execsudo cp $HOME/.config/YDE/settings.conf $sysset
+               else echo -e "sw=\"1\"" >> $set;sw=1;swcol="${BGreen}";execsudo rm $sysset; execsudo touch $sysset;fi;;
 
     "z" | "Z" )remove;;
 
@@ -812,12 +830,10 @@ case "$conf" in
 
     "c" | "C" )update;;
 
-    "v" | "V" )curl -s https://raw.githubusercontent.com/Russanandres/YDE/main/YDE_fallback.sh | bash;;
+    "v" | "V" )curl -s https://raw.githubusercontent.com/Russanandres/YDE/main/YDE_fallback.sh -o $userdata/ydef.sh; bash $userdata/ydef.sh;;
+    "k" | "K" ) if [ "$blink" == "1" ]; then tput civis; blink="0"; else tput cnorm;blink="1";fi;sleep 2;;
 
-    "K" | "K" )if [ "$blink" == "1" ]; then tput civis; blink="0"; else tput cnorm;blink="1";fi;sleep 2;;
-
-    "S" | "s" ) start;;
-    "D" | "d" ) desktop;;
+    "d" | "D" ) desktop;;
 esac
 done
 }
@@ -853,7 +869,6 @@ echo "
 
     We updating your Desktop Environment..."
 loading &
-touch /tmp/updatingYDE.tmp
 if [ "$RELEASE" == "user" ]; then
 wget -q https://raw.githubusercontent.com/Russanandres/YDE/main/de.sh -O /tmp/yde.sh
 elif [ "$RELEASE" == "dev " ]; then
@@ -889,9 +904,9 @@ wget -q https://raw.githubusercontent.com/Russanandres/YDE/main/dev.sh -O /tmp/y
 else echo -e "\n\n We can't detect your YDE release type!";error
 fi
 
-if [ "$sudo" == "1" ]; then sudo rm $int;else rm $int;fi
-if [ "$sudo" == "1" ]; then sudo cp ./$0 $int;else cp ./$0 $int;fi
-if [ "$sudo" == "1" ]; then sudo chmod +x $int;else chmod +x $int;fi
+execsudo rm $int
+execsudo cp ./$0 $int
+execsudo chmod +x $int
 
 sleep 2
 kill "$!"
@@ -936,13 +951,13 @@ sleep 1
 done
 tput civis
 loading &
-if [ "$sudo" == "1" ]; then sudo rm $int;else rm $int;fi
+execsudo rm $int
 rm -rf /tmp/YDE
 mkdir -p /tmp/YDE/$USER/
 mkdir -p /tmp/YDE/system
 mv -f $HOME/.config/YDE /tmp/YDE/$USER/
-# sudo mv -f /usr/share/YDE /tmp/YDE/system/
-if [ "$sudo" == "1" ]; then sudo rm -rf /usr/share/YDE;else rm -rf /usr/share/YDE;fi
+execsudo mv -f /usr/share/YDE /tmp/YDE/system/
+execsudo rm -rf /usr/share/YDE
 rm -rf $HOME/.config/YDE
 rm -rf $HOME/.config/YDE_old
 sleep 2
@@ -1016,9 +1031,9 @@ sleep 1
 done
 loading &
 
-if [ "$sudo" == "1" ]; then sudo cp ./$0 $int; else cp ./$0 $int;fi
+execsudo cp ./$0 $int
 if [ "$?" == "0" ]; then errcopy="copy OK";else errorcopy="copy ERROR";let err=$err+1;fi
-if [ "$sudo" == "1" ]; then sudo chmod +x $int; else chmod +x $int;fi
+execsudo chmod +x $int
 if [ "$?" == "0" ]; then errexec="make executable OK";else errexec="make executable ERROR";let err=$err+1;fi
 
 mkdir /usr/share/YDE
@@ -1033,17 +1048,17 @@ touch $HOME/.config/YDE/settings.conf
 if [ "$?" == "0" ]; then errset="create user config OK";else errset="create user config ERROR";let err=$err+1;fi
 
 
-if [ "$sudo" == "1" ]; then sudo touch $sysset; else touch $sysset;fi
+execsudo touch $sysset
 if [ "$?" == "0" ]; then errsw="create system-wide config OK";else errsw="create system-wide config ERROR";let err=$err+1;fi
 
 if [ ! -f $HOME/.config/YDE/settings.conf ];then
-echo int="$int" > $HOME/.config/YDE/settings.conf
-echo userdata="$userdata" >> $HOME/.config/YDE/settings.conf
-echo fastboot="$fastboot" >> $HOME/.config/YDE/settings.conf
-echo sysset="$sysset" >> $HOME/.config/YDE/settings.conf
-echo sw="$sw" >> $HOME/.config/YDE/settings.conf
-echo logon="$logon" >> $HOME/.config/YDE/settings.conf
-echo updcheck="$updcheck" >> $HOME/.config/YDE/settings.conf
+echo "int=$int" > $HOME/.config/YDE/settings.conf
+echo "userdata=$userdata" >> $HOME/.config/YDE/settings.conf
+echo "fastboot=$fastboot" >> $HOME/.config/YDE/settings.conf
+echo "sysset=$sysset" >> $HOME/.config/YDE/settings.conf
+echo "sw=$sw" >> $HOME/.config/YDE/settings.conf
+echo "logon=$logon" >> $HOME/.config/YDE/settings.conf
+echo "updcheck=$updcheck" >> $HOME/.config/YDE/settings.conf
 fi
 
 sleep 2
@@ -1093,7 +1108,7 @@ echo "
       $errset
       $errsw
 
-      You can ignore this errors and continue using YDE, but some features can be broken.
+      You can ignore this errors and continue use YDE, but some features can be broken.
 
       The installer will close in $sec
 "
@@ -1102,7 +1117,7 @@ done
 fi
 stty "$SAVED_STTY"
 tput cnorm
-echo -e "Run ${int##*/} to open YDE.\n\nYour Desktop Environment $VER - 2022-2023. Russanandres"
+echo -e "Run ${int##*/} to open YDE.\n\nYour Desktop Environment $VER - 2022-2024. Russanandres"
 date
 exit
 fi
