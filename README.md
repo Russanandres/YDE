@@ -1,7 +1,7 @@
-# YDE
+# RDE
 ![Снимок экрана от 2022-11-26 19-51-15](https://user-images.githubusercontent.com/71694426/204099960-36536af7-6010-4bf1-93e2-3343c06c5c04.png)
 <p align="center">
-Your Desktop Environment. This is a DE for TTY sessions written for bash shells.
+RSAR's Desktop Environment. Fork of YDE. But, resizable.
 </p>
 
 ## [<p align="center">YDE Wikipedia</p>](https://github.com/Russanandres/YDE/wiki)
