@@ -229,8 +229,8 @@ case "$1" in
             for (( i=1; i <= $colsd; i++ ));do echo -n " ";done
             echo -n " $2 "
             for (( i=1; i <= $colsd; i++ ));do echo -n " ";done; echo -n "┐";;
-"Upperbar-Head-conf" ) echo -n "   ┌$(for (( i=1; i <= $colsc; i++ ));do echo -n "─";done)┐";;
-"Upperbar-Botton-conf" ) echo -n "   └$(for (( i=1; i <= $colsc; i++ ));do echo -n "─";done)┘";;
+"Upperbar-Head-conf" ) echo -n "┌$(for (( i=1; i <= $colsc; i++ ));do echo -n "─";done)┐";;
+"Upperbar-Botton-conf" ) echo -n "└$(for (( i=1; i <= $colsc; i++ ));do echo -n "─";done)┘";;
 "Space" ) for (( i=0; i <= $linesd; i++ ));do echo " ";done;;
 "Footer" )  echo -n "└"
             for (( i=1; i <= $colsc; i++ ));do echo -n " ";done
@@ -296,7 +296,6 @@ trap "exitscr" SIGINT
 
 getcols;ncols=54
 getlines;nlines=17
-
 if [ "$cols" -lt "$ncols" ] || [ "$lines" -lt "$nlines" ]; then toosmallwindow; fi
 
 colsdoffset=7        # Offset for corner element, no offset
@@ -399,33 +398,30 @@ screen=desktop
 stty -icanon -icrnl time 0 min 0
 while true; do
 trap "exitscr" SIGINT
-getcols;colsdoffset=6
+getcols;getlines;colsdoffset=4;let linesd=lines-22;linesmax=3;let colsc=cols-4;ncols=53;nlines=22
+if [ "$cols" -lt "$ncols" ] || [ "$lines" -lt "$nlines" ]; then toosmallwindow; fi
 clear
-echo -e "$(draw Header Desktop)
-│                                                                             Now is:                  │
-│ [1] - Back to Command line                                              $(date +%D) $(date +%H:%M:%S)            │
-│ [L] - Lockscreen                                                               $(date +%a)                   │
-│                                                                                                      │
-│                                                                                                      │
-│                                                                                                      │
-│                        \`8.\`8888.      ,8' 8 888888888o.      8 8888888888                            │
-│                         \`8.\`8888.    ,8'  8 8888    \`^888.   8 8888                                  │
-│                          \`8.\`8888.  ,8'   8 8888        \`88. 8 8888                                  │
-│                           \`8.\`8888.,8'    8 8888         \`88 8 8888                                  │
-│                            \`8.\`88888'     8 8888          88 8 888888888888                          │
-│                             \`8. 8888      8 8888          88 8 8888                                  │
-│                              \`8 8888      8 8888         ,88 8 8888                                  │
-│                               8 8888      8 8888        ,88' 8 8888                                  │
-│                               8 8888      8 8888    ,o88P'   8 8888                                  │
-│                               8 8888      8 888888888P'      8 888888888888                          │
-│                                                                                                      │
-│                                                                                                      │
-│                                                                                                      │
-│                                                                                                      │
-│                                                                                                      │
-├──────────────────────────────────────────────────────────────────────────────────────────────────────┤
-│ [S] Homescreen                                                                 [$(date +%D)] [$(date +%H:%M:%S)] │
-└──────────────────────────────────────────────────────────────────────────────────────────────────────┘"
+echo -e "$(draw Header Desk)
+$(for (( i=1; i <= $cols-23; i++ ));do echo -n " ";done)Now is:
+  [1] - Back to CLI    $(for (( i=1; i <= $cols-51; i++ ));do echo -n " ";done)$(date +%D) $(date +%H:%M:%S)
+  [L] - Lockscreen$(for (( i=1; i <= $cols-39; i++ ));do echo -n " ";done)$(date +%a)
+
+
+
+
+$(for (( i=1; i <= $cols-84; i++ ));do echo -n " ";done)\`8.\`8888.      ,8' 8 888888888o.      8 8888888888
+$(for (( i=1; i <= $cols-84; i++ ));do echo -n " ";done) \`8.\`8888.    ,8'  8 8888    \`^888.   8 8888
+$(for (( i=1; i <= $cols-84; i++ ));do echo -n " ";done)  \`8.\`8888.  ,8'   8 8888        \`88. 8 8888
+$(for (( i=1; i <= $cols-84; i++ ));do echo -n " ";done)   \`8.\`8888.,8'    8 8888         \`88 8 8888
+$(for (( i=1; i <= $cols-84; i++ ));do echo -n " ";done)    \`8.\`88888'     8 8888          88 8 888888888888
+$(for (( i=1; i <= $cols-84; i++ ));do echo -n " ";done)     \`8. 8888      8 8888          88 8 8888
+$(for (( i=1; i <= $cols-84; i++ ));do echo -n " ";done)      \`8 8888      8 8888         ,88 8 8888
+$(for (( i=1; i <= $cols-84; i++ ));do echo -n " ";done)       8 8888      8 8888        ,88' 8 8888   FORK
+$(for (( i=1; i <= $cols-84; i++ ));do echo -n " ";done)       8 8888      8 8888    ,o88P'   8 8888
+$(for (( i=1; i <= $cols-84; i++ ));do echo -n " ";done)       8 8888      8 888888888P'      8 888888888888$(draw Space)
+ $(draw Upperbar-Head-conf)
+ │ [S] Homescreen$(for (( i=1; i <= $cols-41; i++ ));do echo -n " ";done)[$(date +%D)] [$(date +%H:%M:%S)] │
+ $(draw Upperbar-Botton-conf)"
 if read -t 0; then
 read -n 1 char
 case "$char" in
@@ -434,7 +430,7 @@ case "$char" in
 "L"|"l" ) sttynorm;lock;;
 "~" ) sttynorm;debug;;
 esac;break
-else sleep 0.5;fi;done
+else sleep 1;fi;done
 }
 
 function yourapps(){
@@ -520,7 +516,7 @@ let linesd=lines-9 # Offset for menu and first empty line
 
 draw Header "About desktop"
 echo -n "
-  RSAR's Desktop Environment 🗔
+  RSAR's Desktop Environment 🗔 (Your Desktop Environment Fork)
   Version $VER
   Release: $RELEASE"
 draw Space
@@ -840,9 +836,9 @@ getlines;let colsd=cols-37
 trap "desktop" SIGINT
 clear
 echo -e "
-$(draw Upperbar-Head-conf)
+   $(draw Upperbar-Head-conf)
    │ RDE Configurator$(for (( i=1; i <= $colsd; i++ ));do echo -n " ";done)[Main screen] │
-$(draw Upperbar-Botton-conf)
+   $(draw Upperbar-Botton-conf)
 
       Welcome to RDE configurator!                            Installed: ${incol}$inst${No_color}
       ${BRed}0${No_color} - Turned off
@@ -900,9 +896,9 @@ getcols;let colsc=cols-7
 getlines;let colsd=cols-33
 clear
 echo "
-$(draw Upperbar-Head-conf)
+   $(draw Upperbar-Head-conf)
    │ RDE Updater$(for (( i=1; i <= $colsd; i++ ));do echo -n " ";done)[part 1 of 2] │
-$(draw Upperbar-Botton-conf)
+   $(draw Upperbar-Botton-conf)
 
 
       Welcome to the RDE update system.
@@ -916,9 +912,9 @@ $(draw Upperbar-Botton-conf)
 read -sn1
 clear
 echo "
-$(draw Upperbar-Head-conf)
+   $(draw Upperbar-Head-conf)
    │ RDE Updater$(for (( i=1; i <= $colsd; i++ ));do echo -n " ";done)[part 2 of 2] │
-$(draw Upperbar-Botton-conf)
+   $(draw Upperbar-Botton-conf)
 
 
     We updating your Desktop Environment..."
@@ -940,9 +936,9 @@ getcols;let colsc=cols-6
 getlines;let colsd=cols-35
 clear
 echo "
-$(draw Upperbar-Head-conf)
+   $(draw Upperbar-Head-conf)
    │ RDE reInstallion$(for (( i=1; i <= $colsd; i++ ));do echo -n " ";done)[part 1 of 1] │
-$(draw Upperbar-Botton-conf)
+   $(draw Upperbar-Botton-conf)
 
 
       Hello!
@@ -976,9 +972,9 @@ getcols;let colsc=cols-6
 getlines;let colsd=cols-37
 clear
 echo "
-$(draw Upperbar-Head-conf)
+   $(draw Upperbar-Head-conf)
    │ RDE deInstallion$(for (( i=1; i <= $colsd; i++ ));do echo -n " ";done)[part 1 of 3] │
-$(draw Upperbar-Botton-conf)
+   $(draw Upperbar-Botton-conf)
 
 
       Hello!
@@ -996,9 +992,9 @@ clear
 let timer=timer+1
 let sec=sec-1
 echo "
-$(draw Upperbar-Head-conf)
+   $(draw Upperbar-Head-conf)
    │ RDE deInstallion$(for (( i=1; i <= $colsd; i++ ));do echo -n " ";done)[part 2 of 3] │
-$(draw Upperbar-Botton-conf)
+   $(draw Upperbar-Botton-conf)
 
 
      RDE deInstallion will be started after $sec...
@@ -1020,9 +1016,9 @@ sleep 2
 kill "$!"
 clear
 echo "
-$(draw Upperbar-Head-conf)
+   $(draw Upperbar-Head-conf)
    │ RDE deInstallion$(for (( i=1; i <= $colsd; i++ ));do echo -n " ";done)[part 3 of 3] │
-$(draw Upperbar-Botton-conf)
+   $(draw Upperbar-Botton-conf)
 
 
       RDE has been successfully uninstalled on your PC!
@@ -1068,9 +1064,9 @@ getcols;let colsc=cols-6
 getlines;let colsd=cols-35; let linesd=lines-16
 clear
 echo "
-$(draw Upperbar-Head-conf)
+   $(draw Upperbar-Head-conf)
    │ RDE Installion$(for (( i=1; i <= $colsd; i++ ));do echo -n " ";done)[part 1 of 3] │
-$(draw Upperbar-Botton-conf)
+   $(draw Upperbar-Botton-conf)
 
 
       Welcome to the first boot of RDE!
@@ -1140,9 +1136,9 @@ clear
 let timer=timer+1
 let sec=sec-1
 echo "
-$(draw Upperbar-Head-conf)
+   $(draw Upperbar-Head-conf)
    │ RDE Installion$(for (( i=1; i <= $colsd; i++ ));do echo -n " ";done)[part 3 of 3] │
-$(draw Upperbar-Botton-conf)
+   $(draw Upperbar-Botton-conf)
 
 
       RDE has been successfully installed on your PC!
