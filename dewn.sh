@@ -59,18 +59,6 @@ if [ $RELEASE == user ]; then REL="$0"; else REL="dev.sh";fi
 
 
 
-function windows(){
-while sleep 0.5; do
-# if [ $(tput cols) != 104 ] || [ $(tput lines) != 27 ]; then printf '\033[8;27;104t'; fi
-cols=$(tput cols)
-lines=$(tput lines)
-
-let colsd=cols/2; let colsd=colsd-4; let colsc=cols-2
-let linesd=lines-6
-done &
-}
-
-
 function check(){
 mkdir -vp $HOME/.config/RDE/
 mkdir -v $HOME/.config/RDE/themes
@@ -136,7 +124,6 @@ while [ "$1" != "" ]; do
         --func ) gotofunc=$2; shift;;
         --turn-off-blink ) blink=0;tput civis;;
         --no-check-integrity ) nocheck=1;;
-        --observe-size ) windows;;
         # Modify startup environments (as possible)
         --dv-check-updates )   updcheck="1";;
         --dv-logon ) logon="1";;
@@ -201,7 +188,10 @@ echo -e "
 ";exit;}
 
 
-function toosmallwindow(){
+
+
+
+function toosmallwindow(){          # See drawtestwindow function for offsets meaning
 while sleep 0.1; do clear
 cols=$(tput cols)
 lines=$(tput lines)
@@ -217,7 +207,7 @@ for (( i=1; i <= $colsc; i++ ));do echo -n " ";done
 echo -n "┐"
 echo -e "\n
 Your terminal is too small for RDE.
-Try to resize it. Cols: $cols | Lines: $lines"
+Try to resize it. Cols: $(if [ $cols -lt $ncols ]; then echo ${BRed};else echo ${BGreen};fi)$cols${No_color} | Lines: $(if [ $lines -lt $nlines ]; then echo ${BRed};else echo ${BGreen};fi)$lines${No_color}"
 for (( i=0; i <= $linesd; i++ ));do echo " "; echo -n " ";done
 echo
 
@@ -231,6 +221,25 @@ done;}
 
 
 
+function draw(){                    # See drawtestwindow function for offsets meaning
+case "$1" in
+"Header" )  let colsd=cols/2                                                                        # Divide for headerbar
+            let colsd=colsd-colsdoffset                                                             # Minus amount of header text sym
+            echo -n "┌"
+            for (( i=1; i <= $colsd; i++ ));do echo -n " ";done
+            echo -n " $2 "
+            for (( i=1; i <= $colsd; i++ ));do echo -n " ";done; echo -n "┐";;
+"Upperbar-Head-conf" ) echo -n "   ┌$(for (( i=1; i <= $colsc; i++ ));do echo -n "─";done)┐";;
+"Upperbar-Botton-conf" ) echo -n "   └$(for (( i=1; i <= $colsc; i++ ));do echo -n "─";done)┘";;
+"Space" ) for (( i=0; i <= $linesd; i++ ));do echo " ";done;;
+"Footer" )  echo -n "└"
+            for (( i=1; i <= $colsc; i++ ));do echo -n " ";done
+            echo "[$(date +%D)] [$(date +%H:%M)]   ┘";;
+esac;}
+
+function getcols(){ cols=$(tput cols);}
+function getlines(){ lines=$(tput lines);}
+
 
 
 
@@ -242,9 +251,9 @@ done;}
 
 
 if [ -f "$int" ] || [ "$portable" == "1" ]; then
-printf '\033[8;27;104t'
+getcols
 clear
-echo -n "┌                                                                                                      ┐
+echo -ne "┌$(for (( i=1; i <= $cols-2; i++ ));do echo -n " ";done)┐
 
 
                                     Loading Your Desktop Environment
@@ -268,7 +277,7 @@ echo -n "┌                                                                    
 screen=startingup
 stty -icanon -icrnl time 0 min 0
 if [ "$fastboot" != "1" ]; then sleep 1.3;fi
-printf '\033[8;27;104t'
+# printf '\033[8;27;104t'
 kill "$!";if [ "$blink" != "0" ]; then tput cnorm;fi
 
 
@@ -285,20 +294,16 @@ stty -icanon -icrnl time 0 min 0
 while true; do clear
 trap "exitscr" SIGINT
 
-cols=$(tput cols);ncols=54
-lines=$(tput lines);nlines=17
+getcols;ncols=54
+getlines;nlines=17
 
 if [ "$cols" -lt "$ncols" ] || [ "$lines" -lt "$nlines" ]; then toosmallwindow; fi
 
-let colsd=cols/2    # Offset for name of screen
-let colsd=colsd-7   # Offset for corner element, no offset
+colsdoffset=7        # Offset for corner element, no offset
 let colsc=cols-23   # Offset for date and time + Corner elements
 let linesd=lines-18 # Offset for menu and first empty line
 
-echo -n "┌"
-for (( i=1; i <= $colsd; i++ ));do echo -n " ";done
-echo -n " Homescreen "
-for (( i=1; i <= $colsd; i++ ));do echo -n " ";done; echo -n "┐"
+draw Header Homescreen
 echo -n "
 
    ┌───┐             ┌───┐             ┌───┐
@@ -312,14 +317,11 @@ echo -n "
    └───┘             └───┘
    ┌───┐
    │ L │ Lock PC
-   └───┘"
-for (( i=0; i <= $linesd; i++ ));do echo " "; echo -n " ";done      # Making offset for botton menu
+   └───┘         "
+draw Space
 echo "    [W] All apps
 "
-
-echo -n "└"
-for (( i=1; i <= $colsc; i++ ));do echo -n " ";done                 # Botton menu
-echo "[$(date +%D)] [$(date +%H:%M)]   ┘"
+draw Footer
 
 if read -t 0; then
 read -n 1 ch
@@ -339,7 +341,7 @@ case "$ch" in
 "S"|"s" ) desktop;;
 "D"|"d" ) desktop;;
 esac;break
-else sleep 0.5;fi;done
+else sleep 1;fi;done
 }
 
 
@@ -397,8 +399,9 @@ screen=desktop
 stty -icanon -icrnl time 0 min 0
 while true; do
 trap "exitscr" SIGINT
+getcols;colsdoffset=6
 clear
-echo -e "┌──────────────────────────────────────────── Your Desktop ────────────────────────────────────────────┐
+echo -e "$(draw Header Desktop)
 │                                                                             Now is:                  │
 │ [1] - Back to Command line                                              $(date +%D) $(date +%H:%M:%S)            │
 │ [L] - Lockscreen                                                               $(date +%a)                   │
@@ -506,33 +509,27 @@ stty -icanon -icrnl time 0 min 0
 while true; do clear
 trap "exitscr" SIGINT
 
-cols=$(tput cols);ncols=32
-lines=$(tput lines);nlines=9
+getcols;ncols=32
+getlines;nlines=9
 
 if [ "$cols" -lt "$ncols" ] || [ "$lines" -lt "$nlines" ]; then toosmallwindow; fi
 
-let colsd=cols/2    # Offset for name of screen
-let colsd=colsd-9     # Offset for corner element, no offset
+colsdoffset=9     # Offset for corner element, no offset
 let colsc=cols-23   # Offset for date and time + Corner elements
 let linesd=lines-9 # Offset for menu and first empty line
 
-echo -n "┌"
-for (( i=1; i <= $colsd; i++ ));do echo -n " ";done
-echo -n " About Desktop "
-for (( i=1; i <= $colsd; i++ ));do echo -n " ";done; echo -n "┐"
+draw Header "About desktop"
 echo -n "
   RSAR's Desktop Environment 🗔
   Version $VER
   Release: $RELEASE"
-for (( i=0; i <= $linesd; i++ ));do echo " "; echo -n " ";done      # Making offset for botton menu
+draw Space
 for (( i=0; i <= $colsc-3; i++ ));do echo -n " ";done; echo -n ""   # Making offset for phrase in right side. Before it print spaces
 
 echo "by Russanandres 2024
 "
 
-echo -n "└"
-for (( i=1; i <= $colsc; i++ ));do echo -n " ";done                 # Botton menu
-echo "[$(date +%D)] [$(date +%H:%M)]   ┘"
+draw Footer
 
 if read -t 0; then
 read -n 1 ch
@@ -554,8 +551,8 @@ while sleep 0.1;do clear
 stty -icanon -icrnl time 0 min 0
 trap "exitscr" SIGINT
 
-cols=$(tput cols);ncols=32
-lines=$(tput lines);nlines=9
+getcols;ncols=32
+getlines;nlines=9
 
 if [ "$cols" -lt "$ncols" ] || [ "$lines" -lt "$nlines" ]; then toosmallwindow; fi
 
@@ -590,8 +587,9 @@ done
 
 function lock(){
 while sleep 1; do
+getcols;colsdoffset=7
 clear
-echo -e "┌───────────────────────────────────────────── Lockscreen ─────────────────────────────────────────────┐
+echo -e "$(draw Header Lockscreen)
 │                                                                                                      │
 │                                                                                                      │
 │                                                                                                      │
@@ -621,7 +619,7 @@ done;}
 function unlock(){
 sttynorm
 clear
-echo -e "┌───────────────────────────────────────────── Lockscreen ─────────────────────────────────────────────┐
+echo -e "$(draw Header Lockscreen)
 │                                                                                                      │
 │                                                                                                      │
 │                                                                                                      │
@@ -830,7 +828,6 @@ done;}
 
 function configurator(){
 screen=desktop
-printf '\033[8;27;104t'
 if [ "$inst" == "true " ]; then incol="${BGreen}"; else incol=${BRed};fi
 if [ "$updcheck" == "1" ]; then updcol="${BGreen}"; else updcol=${BRed};fi
 if [ "$logon" == "1" ]; then logcol="${BGreen}"; else logcol=${BRed};fi
@@ -838,12 +835,14 @@ if [ "$fastboot" == "1" ]; then fbcol="${BGreen}"; else fbcol=${BRed};fi
 if [ "$lock" == "1" ]; then locol="${BGreen}"; else locol=${BRed};fi
 if [ "$sw" == "1" ]; then swcol="${BGreen}"; else swcol=${BRed};fi
 while sleep 1; do
+getcols;let colsc=cols-6
+getlines;let colsd=cols-37
 trap "desktop" SIGINT
 clear
 echo -e "
-   ┌────────────────────────────────────────────────────────────────────────────────────────────────┐
-   │ RDE Configurator                                                                 [Main screen] │
-   └────────────────────────────────────────────────────────────────────────────────────────────────┘
+$(draw Upperbar-Head-conf)
+   │ RDE Configurator$(for (( i=1; i <= $colsd; i++ ));do echo -n " ";done)[Main screen] │
+$(draw Upperbar-Botton-conf)
 
       Welcome to RDE configurator!                            Installed: ${incol}$inst${No_color}
       ${BRed}0${No_color} - Turned off
@@ -897,12 +896,13 @@ done
 function update(){
 screen=update
 sttynorm
-printf '\033[8;27;107t'
+getcols;let colsc=cols-7
+getlines;let colsd=cols-33
 clear
 echo "
-   ┌───────────────────────────────────────────────────────────────────────────────────────────────────┐
-   │ RDE Updater                                                                         [part 1 of 2] │
-   └───────────────────────────────────────────────────────────────────────────────────────────────────┘
+$(draw Upperbar-Head-conf)
+   │ RDE Updater$(for (( i=1; i <= $colsd; i++ ));do echo -n " ";done)[part 1 of 2] │
+$(draw Upperbar-Botton-conf)
 
 
       Welcome to the RDE update system.
@@ -916,9 +916,9 @@ echo "
 read -sn1
 clear
 echo "
-   ┌───────────────────────────────────────────────────────────────────────────────────────────────────┐
-   │ RDE Updater                                                                         [part 2 of 2] │
-   └───────────────────────────────────────────────────────────────────────────────────────────────────┘
+$(draw Upperbar-Head-conf)
+   │ RDE Updater$(for (( i=1; i <= $colsd; i++ ));do echo -n " ";done)[part 2 of 2] │
+$(draw Upperbar-Botton-conf)
 
 
     We updating your Desktop Environment..."
@@ -936,12 +936,13 @@ printf '\033[8;27;104t'
 function reinstall(){
 screen=reinstall
 sttynorm
-printf '\033[8;27;107t'
+getcols;let colsc=cols-6
+getlines;let colsd=cols-35
 clear
 echo "
-   ┌───────────────────────────────────────────────────────────────────────────────────────────────────┐
-   │ RDE reInstallion                                                                    [part 1 of 1] │
-   └───────────────────────────────────────────────────────────────────────────────────────────────────┘
+$(draw Upperbar-Head-conf)
+   │ RDE reInstallion$(for (( i=1; i <= $colsd; i++ ));do echo -n " ";done)[part 1 of 1] │
+$(draw Upperbar-Botton-conf)
 
 
       Hello!
@@ -971,12 +972,13 @@ exitscr
 function remove(){
 screen=remove
 sttynorm
-printf '\033[8;27;107t'
+getcols;let colsc=cols-6
+getlines;let colsd=cols-37
 clear
 echo "
-   ┌───────────────────────────────────────────────────────────────────────────────────────────────────┐
-   │ RDE deInstallion                                                                    [part 1 of 3] │
-   └───────────────────────────────────────────────────────────────────────────────────────────────────┘
+$(draw Upperbar-Head-conf)
+   │ RDE deInstallion$(for (( i=1; i <= $colsd; i++ ));do echo -n " ";done)[part 1 of 3] │
+$(draw Upperbar-Botton-conf)
 
 
       Hello!
@@ -994,9 +996,9 @@ clear
 let timer=timer+1
 let sec=sec-1
 echo "
-   ┌───────────────────────────────────────────────────────────────────────────────────────────────────┐
-   │ RDE deInstallion                                                                    [part 2 of 3] │
-   └───────────────────────────────────────────────────────────────────────────────────────────────────┘
+$(draw Upperbar-Head-conf)
+   │ RDE deInstallion$(for (( i=1; i <= $colsd; i++ ));do echo -n " ";done)[part 2 of 3] │
+$(draw Upperbar-Botton-conf)
 
 
      RDE deInstallion will be started after $sec...
@@ -1018,9 +1020,9 @@ sleep 2
 kill "$!"
 clear
 echo "
-   ┌───────────────────────────────────────────────────────────────────────────────────────────────────┐
-   │ RDE deInstallion                                                                    [part 3 of 3] │
-   └───────────────────────────────────────────────────────────────────────────────────────────────────┘
+$(draw Upperbar-Head-conf)
+   │ RDE deInstallion$(for (( i=1; i <= $colsd; i++ ));do echo -n " ";done)[part 3 of 3] │
+$(draw Upperbar-Botton-conf)
 
 
       RDE has been successfully uninstalled on your PC!
@@ -1033,6 +1035,18 @@ sleep 3
 tput cnorm
 exitscr
 }
+
+
+
+
+function drawtestwindow(){ clear
+getlines;getcols
+colsdoffset=4       # Offset for Title                           (Symbols of header name)
+let colsc=cols-23   # Offset for date and time + Corner elements (23 is +- default)
+let linesd=lines-5  # Offset for menu and header                 (3 is header, 1 is menu, 1 empty line)
+draw Header Test
+draw Space
+draw Footer;exit;}
 
 
 
@@ -1050,12 +1064,13 @@ fi
 done
 else
 tput civis;sttynorm
-printf '\033[8;27;107t'
+getcols;let colsc=cols-6
+getlines;let colsd=cols-35; let linesd=lines-16
 clear
 echo "
-   ┌────────────────────────────────────────────────────────────────────────────────────────────────────┐
-   │ RDE Installion                                                                       [part 1 of 3] │
-   └────────────────────────────────────────────────────────────────────────────────────────────────────┘
+$(draw Upperbar-Head-conf)
+   │ RDE Installion$(for (( i=1; i <= $colsd; i++ ));do echo -n " ";done)[part 1 of 3] │
+$(draw Upperbar-Botton-conf)
 
 
       Welcome to the first boot of RDE!
@@ -1064,9 +1079,9 @@ echo "
       The environment will now be installed on your computer.
 
        - Press ENTER to continue
-       - Press CTRL + C to exit.
-"
-read -sn1 -p "Press any button to continue"
+       - Press CTRL + C to exit."
+draw Space
+read -sn1 -p "       Press any button to continue"
 clear; err=0
 sec=4; timer=0
 while [ "$timer" -lt "4" ]; do
@@ -1074,9 +1089,9 @@ clear
 let timer=timer+1
 let sec=sec-1
 echo "
-   ┌────────────────────────────────────────────────────────────────────────────────────────────────────┐
-   │ RDE Installion                                                                       [part 2 of 3] │
-   └────────────────────────────────────────────────────────────────────────────────────────────────────┘
+$(draw Upperbar-Head-conf)
+   │ RDE Installion$(for (( i=1; i <= $colsd; i++ ));do echo -n " ";done)[part 2 of 3] │
+$(draw Upperbar-Botton-conf)
 
 
     Installing of RSAR's Desktop Environment will be started after $sec seconds...
@@ -1125,9 +1140,9 @@ clear
 let timer=timer+1
 let sec=sec-1
 echo "
-   ┌───────────────────────────────────────────────────────────────────────────────────────────────────┐
-   │ RDE Installion                                                                      [part 3 of 3] │
-   └───────────────────────────────────────────────────────────────────────────────────────────────────┘
+$(draw Upperbar-Head-conf)
+   │ RDE Installion$(for (( i=1; i <= $colsd; i++ ));do echo -n " ";done)[part 3 of 3] │
+$(draw Upperbar-Botton-conf)
 
 
       RDE has been successfully installed on your PC!
@@ -1147,9 +1162,9 @@ clear
 let timer=timer+1
 let sec=sec-1
 echo "
-   ┌────────────────────────────────────────────────────────────────────────────────────────────────────┐
-   │ RDE Installion                                                                       [part 3 of 3] │
-   └────────────────────────────────────────────────────────────────────────────────────────────────────┘
+$(draw Upperbar-Head-conf)
+   │ RDE Installion$(for (( i=1; i <= $colsd; i++ ));do echo -n " ";done)[part 3 of 3] │
+$(draw Upperbar-Botton-conf)
 
 
       RDE has been unsuccessfully installed with $err total errors!
